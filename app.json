@@ -31,10 +31,7 @@
     },
     "plugins": [
       [
-        "expo-document-picker",
-        {
-          "iCloudContainerEnvironment": "Development"
-        }
+        "expo-document-picker"
       ]
     ],
     "extra": {
