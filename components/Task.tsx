@@ -1,4 +1,4 @@
-import { TextInput, StyleSheet, Button, TouchableOpacity, Text, View, Dimensions, Pressable } from 'react-native';
+import { TextInput, TouchableWithoutFeedback, StyleSheet, Button, TouchableOpacity, Text, View, Dimensions, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
 import { MaterialCommunityIcons, Entypo, Feather } from '@expo/vector-icons';
 import moment from 'moment';
@@ -10,12 +10,13 @@ import { useForm, Controller, set } from 'react-hook-form';
 
 const width = Dimensions.get('window').width;
 
-function Task({db, tasks, setTasks, tracks, setTracks, sections, date,task, taskState, id ,track, time, section, trackScreen, archive, recurring, tabcolor}) {
+function Task({db, tasks, setTasks, tracks, setTracks, sections, date,task, taskState, id ,track, time, section, trackScreen, archive, recurring, tabcolor, monthly, year, month, day}) {
   
   const {control, handleSubmit, reset} = useForm();
   const [value, setValue] = useState('');
   const [editOn,setEditOn] = useState(false);
 
+console.warn(tasks)
 
   const today= new Date();
   const updateTaskState = () => {
@@ -29,7 +30,7 @@ function Task({db, tasks, setTasks, tracks, setTracks, sections, date,task, task
     let copytrack=existingTasks[indexToUpdate].track;
     let copyTime=existingTasks[indexToUpdate].time;
     if (existingTasks[indexToUpdate].taskState==0){
-      db.transaction(tx=> {
+      db.transaction(tx=> { 
         tx.executeSql('UPDATE tasks SET taskState = ? WHERE id = ?', [1, id],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
@@ -68,10 +69,10 @@ function Task({db, tasks, setTasks, tracks, setTracks, sections, date,task, task
           );
         });
         db.transaction(tx => {
-          tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,track,time, section) values (?,?,?,?,?,?,?,?,?,?)',
-          [ uuid.v4(),postponedTask,nextDayYear,nextDayMonth,nextDayDay,0,0,copytrack,copyTime, section],
+          tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,monthly,track,time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
+          [ uuid.v4(),postponedTask,nextDayYear,nextDayMonth,nextDayDay,0,0,0,copytrack,copyTime, section],
             (txtObj,resultSet)=> {   
-              existingTasks.push({ id: uuid.v4(), task: postponedTask, year: nextDayYear, month:nextDayMonth, day:nextDayDay, taskState:0, recurring:0, track:copytrack, time:copyTime, section:section});
+              existingTasks.push({ id: uuid.v4(), task: postponedTask, year: nextDayYear, month:nextDayMonth, day:nextDayDay, taskState:0, recurring:0, monthly:0, track:copytrack, time:copyTime, section:section});
             },
           );
         });
@@ -119,9 +120,7 @@ function Task({db, tasks, setTasks, tracks, setTracks, sections, date,task, task
   const taskTime= time=="null"? "":moment(time).format('HH:mm');
 
   const editTask = (data) => {
-    console.warn('edited task')
     let existingTasks=[...tasks];
-    console.warn('lol', data.task);
     const indexToUpdate = existingTasks.findIndex(c => c.id === id);
       db.transaction(tx=> {
         tx.executeSql('UPDATE tasks SET task = ? WHERE id = ?', [data.task, id],
@@ -153,7 +152,7 @@ function Task({db, tasks, setTasks, tracks, setTracks, sections, date,task, task
           {task}
         </Text>
       </Pressable>
-      <Pressable style={{flex:1, display: editOn?'flex':'none', flexDirection:'row'}}>
+      <Pressable style={{flex:1, display: editOn?'flex':'none', flexDirection:'row'}}>   
         <Controller
               control= {control}
               name="task"
@@ -192,6 +191,9 @@ function Task({db, tasks, setTasks, tracks, setTracks, sections, date,task, task
       </Pressable>
       <View style={{display:time==undefined?"none":"flex",width:60,height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
           <Text style={{fontSize:10, right:10}}>{time=="Invalid date"?undefined: time==undefined? undefined:taskTime}</Text>
+      </View>
+      <View style={{display:(monthly==1 && day!==null)?"flex":"none",width:60,height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
+          <Text style={{fontSize:10, right:10}}>{moment(new Date(year,month+1,day)).format("MM/DD")}</Text>
       </View>
       <Pressable onPress={()=> updateTaskState()} style={{display:editOn?'none':'flex',marginRight:5}}>
         <MaterialCommunityIcons name={taskState===0 ? 'checkbox-blank-outline' : (

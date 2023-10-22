@@ -30,7 +30,7 @@ function NewSection({db, sections, setSections, track, newSectionVisible, setNew
                 );
             });
         setNewSectionVisible(false);
-        setValue('');
+        reset();
     };
 
   return (
@@ -51,19 +51,19 @@ function NewSection({db, sections, setSections, track, newSectionVisible, setNew
                 control= {control}
                 name={'name'}
                 render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
-                    <>
-                <TextInput
-                    value={value}
-                    onChangeText={onChange}
-                    autoCapitalize = {"characters"}
-                    onBlur={onBlur}
-                    placeholder={"new section name"}
-                    style={[container.textinput,{borderColor: error ? 'red' : '#e8e8e8'}]}
-                />
-                {error && (
-                    <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
-                )}
-                </>
+                  <View style={{flexDirection:'column'}}>
+                    <TextInput
+                        value={value}
+                        onChangeText={onChange}
+                        autoCapitalize = {"characters"}
+                        onBlur={onBlur}
+                        placeholder={"new section name"}
+                        style={[container.textinput,{borderColor: error ? 'red' : '#e8e8e8'}]}
+                    />
+                    {error && (
+                        <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
+                    )}
+                  </View>
                 )}
                 rules={{
                     required: 'Input a section name',

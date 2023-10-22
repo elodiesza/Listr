@@ -71,9 +71,9 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
 
     let existingTasks = [...tasks]; 
     db.transaction((tx) => {
-      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',[uuid.v4(),data.task,tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'),tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1,tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'),0,recurring==1?1:0,monthly?1:0,selectedTrack,addTime=='Add Time'?null:time.toString(),section==undefined?undefined:section],
+      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',[uuid.v4(),data.task,tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'),tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1,(tracksScreen||monthly==1)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'),0,recurring==1?1:0,monthly?1:0,selectedTrack,addTime=='Add Time'?null:time.toString(),section==undefined?undefined:section],
       (txtObj,resultSet)=> {    
-        existingTasks.push({ id: uuid.v4(), task: data.task, year:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'), month:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1, day:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'), taskState:0, recurring:recurring==1?1:0, monthly:monthly?1:0, track:selectedTrack, time:addTime=='Add Time'?null:time.toString(), section});
+        existingTasks.push({ id: uuid.v4(), task: data.task, year:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'), month:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1, day:(tracksScreen||monthly==1)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'), taskState:0, recurring:recurring==1?1:0, monthly:monthly?1:0, track:selectedTrack, time:addTime=='Add Time'?null:time.toString(), section});
         setTasks(existingTasks);
       },
       (txtObj, error) => console.warn('Error inserting data:', error)
@@ -89,6 +89,7 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
     setAddModalVisible(false);
     loadx(!load);
     setSelectedTrack(track);
+    reset();
   };
 
 
@@ -129,7 +130,7 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
               control= {control}
               name="task"
               render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
-                <View style={{flexDirection:'column'}}>
+                <View style={{flexDirection:'column', flex:1}}>
                   <TextInput
                     value={value}
                     onChangeText={onChange}
@@ -191,7 +192,7 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
                 </Pressable>
               </View>
             </View> 
-            <View style={{flex:1,display:monthly?'none':'flex'}}>
+            <View style={{flex:1,display:(monthly||tracksScreen)?'none':'flex'}}>
               <FlatList
                 data={[{'track':'DAILY','color':'#D3DDDF'},...new Set(tracks)]}
                 renderItem={({item}) => (

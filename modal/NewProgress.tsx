@@ -25,6 +25,7 @@ function NewProgress({addModalVisible, setAddModalVisible, db, progress, setProg
           );
         });
     setAddModalVisible(false);
+    reset();
   };
 
 
@@ -51,7 +52,7 @@ function NewProgress({addModalVisible, setAddModalVisible, db, progress, setProg
                 control= {control}
                 name="name"
                 render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
-                  <>
+                  <View style={{flexDirection:'column'}}>
                     <TextInput
                       value={value}
                       onChangeText={onChange}
@@ -62,7 +63,7 @@ function NewProgress({addModalVisible, setAddModalVisible, db, progress, setProg
                     {error && (
                       <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
                     )}
-                  </>
+                  </View>
                 )}
                 rules={{
                   required: 'Input a name for your progress bar',

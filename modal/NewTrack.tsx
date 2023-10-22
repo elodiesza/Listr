@@ -45,6 +45,7 @@ function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, s
     setSelectedTabColor(picked);
     setPicked('');
     setNewTrackVisible(false);
+    reset();
   };
 
 
@@ -73,20 +74,20 @@ function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, s
                     control= {control}
                     name="name"
                     render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
-                        <>
-                      <TextInput
-                        value={value}
-                        onChangeText={onChange}
-                        autoCapitalize = {"characters"}
-                        onBlur={onBlur}
-                        placeholder="NAME"
-                        style={[container.textinput,{width:undefined,flex:1,borderColor: error ? 'red' : '#e8e8e8'}]}
-                      />
-                      {error && (
-                        <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
-                      )}
-                    </>
-                  )}
+                      <View style={{flexDirection:'column',flex:1}}>
+                        <TextInput
+                          value={value}
+                          onChangeText={onChange}
+                          autoCapitalize = {"characters"}
+                          onBlur={onBlur}
+                          placeholder="NAME"
+                          style={[container.textinput,{width:undefined,flex:1,borderColor: error ? 'red' : '#e8e8e8'}]}
+                        />
+                        {error && (
+                          <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
+                        )}
+                      </View>
+                    )}
                   rules={{
                     required: 'Input a Habit',
                     minLength: {

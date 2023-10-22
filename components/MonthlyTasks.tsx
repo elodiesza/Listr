@@ -1,4 +1,4 @@
-import { FlatList, TextInput, Button, TouchableOpacity, Pressable, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { FlatList, Keyboard,Animated, Easing, TextInput, Button, TouchableOpacity, Pressable, StyleSheet, Text, View, Dimensions } from 'react-native';
 import { useState,useEffect } from 'react';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { Feather } from '@expo/vector-icons';
@@ -10,9 +10,55 @@ import { useForm, Controller, set } from 'react-hook-form';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
 
 const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, month, tasks, setTasks}) {
   
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const openKeyboardAnimationValue = new Animated.Value(0);
+  const closeKeyboardAnimationValue = new Animated.Value(1);
+  
+    const startOpenAnimation = () => {
+      Animated.timing(openKeyboardAnimationValue, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.ease,
+        useNativeDriver: false,
+      }).start();
+    };
+    
+    const startCloseAnimation = () => {
+      Animated.timing(closeKeyboardAnimationValue, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.ease,
+        useNativeDriver: false,
+      }).start();
+    };
+
+    useEffect(() => {
+      if (isKeyboardOpen) {
+        startOpenAnimation();
+      } else {
+        startCloseAnimation();
+      }
+    }, [isKeyboardOpen]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardOpen(true);
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardOpen(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   const today = new Date();
   const thisYear = today.getFullYear();
   const thisMonth = today.getMonth();
@@ -99,33 +145,25 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
   
   const TransferDaily = (id) => {
     let existingTasks = [...tasks];
+    let indexToUpdate = existingTasks.findIndex(c => c.id === id);
     let toTransfer = tasks.filter(c=>(c.id==id))[0];
-    db.transaction((tx) => {
-      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,monthly,track,time,section) values (?,?,?,?,?,?,?,?,?,?,?)',
-      [ uuid.v4(),toTransfer.task,thisYear,thisMonth,thisDay,toTransfer.taskState,0,false,toTransfer.track,undefined, undefined],
-      (txtObj,resultSet)=> {    
-        existingTasks.push({ id: uuid.v4(), task: toTransfer.task, year:thisYear, month:thisMonth, day:thisDay, taskState:toTransfer.taskState, recurring:0, monthly: false, track:toTransfer.track, time:undefined, section:undefined});
-        setTasks(existingTasks);
-      },
-      (txtObj, error) => console.warn('Error inserting data:', error)
-      );
-    })
-    db.transaction(tx => {
-      tx.executeSql('DELETE FROM tasks WHERE id = ?', [id],
-        (txObj, resultSet2) => {
-          if (resultSet2.rowsAffected > 0) {
-            let existingTasks = [...tasks].filter(task => task.id !== id);
+
+    db.transaction(tx=> {
+      tx.executeSql('UPDATE tasks SET day = ? WHERE id = ?', [thisDay, id],
+        (txObj, resultSet) => {
+          if (resultSet.rowsAffected > 0) {
+            existingTasks[indexToUpdate].day = thisDay;
             setTasks(existingTasks);
           }
         },
-        (txObj, error) => console.log(error)
+        (txObj, error) => console.log('Error updating data', error)
       );
-    })
+    });
   }
 
   const DeleteItem = ({ id }) => (
     <View style={{ flex: 1, backgroundColor: 'green', flexDirection: 'row' }}>
-      <View style={{ width: width - 100, paddingRight: 12, justifyContent: 'center', alignItems: 'flex-end', backgroundColor: 'yellowgreen' }}>
+      <View style={{ width: width*0.9 - 50, paddingRight: 12, justifyContent: 'center', alignItems: 'flex-end', backgroundColor: 'yellowgreen' }}>
         <Pressable onPress={()=>TransferDaily(id)}>
           <Feather name="calendar" size={25} color={'white'} />
         </Pressable>
@@ -162,7 +200,7 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
       (txtObj, error) => console.warn('Error inserting data:', error)
       );
     });
-    setValue('');
+    reset();
     loadx(!load);
   };
 
@@ -170,21 +208,36 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
   const dailyData = tasks.filter(c=>(c.year==year && c.month==month && c.monthly==true));
 
   return (
-    <KeyboardAwareScrollView>
-      <View style={container.body}>
+      <View style={[container.body,{}]}>
         <View style={container.block}>
           <View style={container.tab}>
             <Text style={container.tabtext}>
               MONTHLY
             </Text>
           </View>
-          <View style={container.tasklistblock}>
+          <Animated.View
+            style={[
+              container.listblock,
+              {
+                marginBottom: isKeyboardOpen
+                  ? openKeyboardAnimationValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, height * 3 / 10],
+                    })
+                  : closeKeyboardAnimationValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [height * 3 / 10, 0],
+                    }),
+                backgroundColor: colors.primary.white,
+              },
+            ]}
+          >
             <SwipeListView 
               data={dailyData} 
               scrollEnabled={true} 
               renderItem={({ item }) => <Task db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} setTracks={setTracks} 
               sections={undefined} date={new Date(year,month,1)} task={item.task} taskState={item.taskState} id={item.id} track={undefined} 
-              time={undefined} section={undefined} trackScreen={false} archive={false} recurring={item.recurring} tabcolor={undefined}/>} 
+              time={undefined} section={undefined} trackScreen={false} archive={false} recurring={item.recurring} tabcolor={undefined} monthly={1} year={item.year} month={item.monthly} day={item.day}/>} 
               renderHiddenItem={({ item }) => <DeleteItem id={item.id} />} bounces={false} 
               rightOpenValue={-100}
               disableRightSwipe={true}
@@ -195,7 +248,7 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
                 control= {control}
                 name="task"
                 render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
-                  <>
+                  <View style={{flex:1, flexDirection:'column'}}>
                     <TextInput
                       value={value}
                       onChangeText={onChange}
@@ -206,7 +259,7 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
                     {error && (
                       <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
                     )}
-                  </>
+                  </View>
                 )}
                 rules={{
                   required: 'Input a Habit',
@@ -221,15 +274,14 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
                 }}
               />
               <Pressable onPress={handleSubmit(addTask)}>
-                <Feather name="plus-circle" size={20} color={colors.primary.purple} style={{right:30}}/>
+                <Feather name="plus-circle" size={20} color={colors.primary.purple} style={{right:10}}/>
               </Pressable>
             </View>
-          </View>
+          </Animated.View>
         </View>
-      </View>
-      <TouchableOpacity onPress={() => setAddModalVisible(true)} style={{justifyContent: 'center', position: 'absolute', bottom:15, right: 15, flex: 1}}>
-        <Feather name='plus-circle' size={40} color={colors.primary.purple
-        } />
+      
+      <TouchableOpacity onPress={() => setAddModalVisible(true)} style={{justifyContent: 'center', position: 'absolute', bottom:55, right: 15, flex: 1}}>
+        <Feather name='plus-circle' size={40} color={colors.primary.purple} />
       </ TouchableOpacity> 
       <NewTask
         addModalVisible={addModalVisible===true}
@@ -244,6 +296,6 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
         tracksScreen={false}
         monthly={true}
       />
-    </KeyboardAwareScrollView>
+    </View>
   );
 }

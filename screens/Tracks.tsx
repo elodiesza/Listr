@@ -188,9 +188,11 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
 
     const TabItem = ({item,index, selected}) => {
         return (
-            <Pressable onPress={()=>setSelectedTab(item.track)} style={{position:'relative', marginLeft:-90, bottom:selected, zIndex:selected==-1?1:0,transform: [{scale: 0.7}]}}>
-                <Tab color={paleColor(item.color)} title={item.track} onPress={()=>setSelectedTab(item.track)}/>
-            </Pressable>
+            <Pressable onPress={()=>setSelectedTab(item.track)} style={[container.tab,{zIndex:item.track==selectedTab?1:0,bottom:item.track==selectedTab? -1:0,borderRightWidth:item.track==selectedTab? 0.5:0,borderLeftWidth:item.track==selectedTab? 0.5:0,borderTopWidth:item.track==selectedTab? 0.5:0,backgroundColor:item.color!==""?paleColor(item.color):colors.primary.default}]}>
+                <Text style={container.tabtext}>
+                    {item.track}
+                </Text>
+          </Pressable>
         );
     };
 
@@ -296,17 +298,17 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
                     <Feather onPress={()=>setNewTrackVisible(true)} name='plus-circle' size={40} color={colors.primary.purple}  />
                 </TouchableOpacity> 
                 <View style={container.block}>
-                    <View style={{height:41, zIndex:1, bottom:-7, flexDirection:'row'}}>
+                    <View style={{height:29, zIndex:1, bottom:-1, flexDirection:'row'}}>
                         <FlatList
                             data={[... new Set(tracks),{'id':'unlisted','track':'UNLISTED','color':colors.primary.default}]}
                             renderItem={({item,index}) =>  <TabItem item={item} index={index} selected={selectedTab==item.track?-0.5:0} />}
                             horizontal={true}
                             keyExtractor= {(item,index) => index.toString()}
-                            contentContainerStyle={{flexDirection:'row-reverse',left:45}}
+                            contentContainerStyle={{flexDirection:'row-reverse'}}
                             showsHorizontalScrollIndicator={false}
                         />
                     </View>
-                    <View style={[container.trackcontainer,{backgroundColor: paleColor(selectedTabColor),}]}>  
+                    <View style={[container.listblock,{backgroundColor: paleColor(selectedTabColor),}]}>  
                         <FlatList
                             data={sections.filter(c=>c.track==selectedTab)} 
                             renderItem={({item,index}) => 

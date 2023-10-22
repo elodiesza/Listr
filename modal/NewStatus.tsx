@@ -70,6 +70,7 @@ function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setSt
       }
     setItemlist([{ colorPickerVisible: false, picked: '', value: undefined }]);
     setSelectedStatus(data.name);
+    reset1();
   };
   const addStatusrecord = async (data) => {
     let existingstatusrecords = [...statusrecords];
@@ -96,6 +97,7 @@ function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setSt
         });
       setNewStatusVisible(false);
       setSelectedStatus(selectedList)
+      reset2();
   };
 
   const ItemList = ({item,index}) => {
@@ -209,19 +211,19 @@ function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setSt
                     control= {control1}
                     name="name"
                     render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
-                        <>
-                      <TextInput
-                        value={value}
-                        onChangeText={onChange}
-                        autoCapitalize = {"characters"}
-                        onBlur={onBlur}
-                        placeholder="NAME"
-                        style={[container.textinput,{width:width,borderColor: error ? 'red' : '#e8e8e8'}]}
-                      />
-                      {error && (
-                        <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
-                      )}
-                    </>
+                      <View style={{flexDirection:'column'}}>
+                        <TextInput
+                          value={value}
+                          onChangeText={onChange}
+                          autoCapitalize = {"characters"}
+                          onBlur={onBlur}
+                          placeholder="NAME"
+                          style={[container.textinput,{width:width,borderColor: error ? 'red' : '#e8e8e8'}]}
+                        />
+                        {error && (
+                          <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
+                        )}
+                      </View>
                     )}
                     rules={{
                       required: 'Input a satus',
@@ -248,7 +250,7 @@ function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setSt
                       keyExtractor={(item, index) => index.toString()}
                       contentContainerStyle={{width:"100%", alignItems:'center', justifyContent:'center'}}
                   />
-                  <Pressable onPress={handleSubmit1(addStatus)} style={[container.button,{}]}>
+                  <Pressable onPress={handleSubmit1(addStatus)} style={container.button}>
                     <Text>CREATE NEW STATUS LIST</Text>
                   </Pressable>
                 </View>

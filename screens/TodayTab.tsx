@@ -8,7 +8,7 @@ import background from '../assets/images/design/background.jpg';
 
 
 const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
-  sections, statusrecords, setStatusrecords, statuslist, setStatuslist}) => {
+  sections}) => {
 
   var today = new Date();
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +40,7 @@ const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
         </Pressable>
         <View style={{alignItems:'center', marginHorizontal:20}}>
           <Text style={container.headertitle}>
-            TODAY
+            {(date.getDate()==today.getDate() && date.getMonth()==today.getMonth() && date.getFullYear()==today.getFullYear())?'TODAY':date<today? 'PAST': 'FUTURE'}
           </Text>
           <Text style={container.headerdate}>
             {moment(date).format('dddd, DD MMMM YYYY')}

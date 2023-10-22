@@ -1,4 +1,4 @@
-import { Keyboard, FlatList, TextInput, TouchableOpacity, Button, Text, View, Dimensions, Pressable } from 'react-native';
+import { Animated, Easing, Keyboard, FlatList, TextInput, TouchableOpacity, Text, View, Dimensions, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
 import NewTask from '../modal/NewTask';
 import { Feather, Octicons } from '@expo/vector-icons';
@@ -7,13 +7,41 @@ import { container, colors, paleColor } from '../styles';
 import Task from './Task';
 import uuid from 'react-native-uuid';
 import { useForm, Controller, set } from 'react-hook-form';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
 
 const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, sections}) {
-
+  
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const openKeyboardAnimationValue = new Animated.Value(0);
+  const closeKeyboardAnimationValue = new Animated.Value(1);
+  
+    const startOpenAnimation = () => {
+      Animated.timing(openKeyboardAnimationValue, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.ease,
+        useNativeDriver: false,
+      }).start();
+    };
+    
+    const startCloseAnimation = () => {
+      Animated.timing(closeKeyboardAnimationValue, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.ease,
+        useNativeDriver: false,
+      }).start();
+    };
+
+    useEffect(() => {
+      if (isKeyboardOpen) {
+        startOpenAnimation();
+      } else {
+        startCloseAnimation();
+      }
+    }, [isKeyboardOpen]);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -90,10 +118,10 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
                   let copytrack=existingRecurringTasks[i].track;
                   let copyTime=existingRecurringTasks[i].time;
                   db.transaction(tx => {
-                    tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,track,time, section) values (?,?,?,?,?,?,?,?,?,?)',
-                    [ uuid.v4(),newTask,newDate.getFullYear(),newDate.getMonth(),newDate.getDate(),0,1,copytrack,copyTime,undefined],
+                    tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,monthly,track,time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
+                    [ uuid.v4(),newTask,newDate.getFullYear(),newDate.getMonth(),newDate.getDate(),0,1,0,copytrack,copyTime,undefined],
                       (txtObj,resultSet)=> {   
-                        existingTasks.push({ id: uuid.v4(), task: newTask, year:newDate.getFullYear(), month:newDate.getMonth(), day:newDate.getDate(), taskState:0, recurring:1, track:copytrack, time:copyTime, section: undefined});
+                        existingTasks.push({ id: uuid.v4(), task: newTask, year:newDate.getFullYear(), month:newDate.getMonth(), day:newDate.getDate(), taskState:0, recurring:1, monthly:0, track:copytrack, time:copyTime, section: undefined});
                         setTasks(existingTasks);
                       },
                     );
@@ -128,37 +156,26 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
       )
   }
 
-  const addLog = () => {
-    let existingLogs = [...logs];  
-      db.transaction(tx => {
-        tx.executeSql('INSERT INTO logs (id,year,month,day) values (?,?,?,?)',[ uuid.v4(),year,month,day-1],
-          (txtObj,resultSet)=> {    
-            existingLogs.push({ id: uuid.v4(), year:year, month:month, day:day-1});
-            setLogs(existingLogs);
-          },
-        );
-      });
-  }
-
+  console.warn(logs)
 
   const addTask = async (data) => {
     let existingTasks = [...tasks]; 
     db.transaction((tx) => {
       tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
-      [uuid.v4(),data.task,date.getFullYear(),date.getMonth(),date.getDate(),0,0,false,selectedTab,null,undefined],
+      [uuid.v4(),data.task,date.getFullYear(),date.getMonth(),date.getDate(),0,0,false,selectedTab=='all'?'DAILY':selectedTab,null,undefined],
       (txtObj,resultSet)=> {    
         existingTasks.push({ id: uuid.v4(), task: data.task, year:date.getFullYear(), month:date.getMonth(), day:date.getDate(), taskState:0, recurring:0, 
-          monthly:false, track:selectedTab, time:null, section: undefined});
+          monthly:false, track:selectedTab=='all'?'DAILY':selectedTab, time:null, section: undefined});
         setTasks(existingTasks);
       },
       (txtObj, error) => console.warn('Error inserting data:', error)
       );
     });
-    setValue('');
     loadx(!load);
+    reset();
   };
 
-  const dailyData = tasks.filter(c=>(c.day==date.getDate() && c.monthly==false));
+  const dailyData = tasks.filter(c=>(c.day==date.getDate() && c.month==date.getMonth() && c.year==date.getFullYear()));
 
   const DeleteItem = ({ id }) => (
     <View style={{flex: 1,justifyContent: 'center', alignItems: 'flex-end', paddingRight: 25, backgroundColor:'darkred'}}>
@@ -179,22 +196,26 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
       </Pressable> 
     </View>
   );
-
+  const TabItem = ({item,index, selected}) => {
+    return (
+        <Pressable onPress={()=>setSelectedTab(item.track)} style={[container.tab,{zIndex:item.track==selectedTab?1:0,bottom:item.track==selectedTab? 0:1,borderRightWidth:item.track==selectedTab? 0.5:0,borderLeftWidth:item.track==selectedTab? 0.5:0,borderTopWidth:item.track==selectedTab? 0.5:0,backgroundColor:item.color!==""?paleColor(item.color):colors.primary.default}]}>
+            <Text style={container.tabtext}>
+                {item.track}
+            </Text>
+      </Pressable>
+    );
+};
 
   return (
-    
+
       <View style={container.body}>
         <View style={container.block}>
-          <View style={{flexDirection:'row', width:'100%',zIndex:1}}>
+          <View style={{zIndex:1, bottom:-1,flexDirection:'row'}}>
             <View style={{flex:1,flexDirection:'row'}}>
               <FlatList
                 data={[... new Set(tracks),{'id':'daily','track':'DAILY','color':colors.primary.default}]} 
                 renderItem={({item,index}) => 
-                  <Pressable onPress={()=>setSelectedTab(item.track)} style={[container.tab,{zIndex:item.track==selectedTab?1:0,bottom:item.track==selectedTab? -1:0,borderRightWidth:item.track==selectedTab? 1:0,borderLeftWidth:item.track==selectedTab? 1:0,borderTopWidth:item.track==selectedTab? 1:0,backgroundColor:item.color!==""?paleColor(item.color):colors.primary.default}]}>
-                    <Text style={container.tabtext}>
-                      {item.track}
-                    </Text>
-                  </Pressable>
+                  <TabItem item={item} index={index} selected={selectedTab==item.track?-0.5:0} />
                 }
                 horizontal={true}
                 bounces={true}
@@ -204,11 +225,26 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
               />
             </View>
             <Pressable onPress={()=> setSelectedTab('all')}>
-              <Octicons name='stack' size={23} style={{marginHorizontal:5,marginTop:3}}/>
+              <Octicons name='stack' size={23} style={{marginHorizontal:10,marginTop:3}}/>
             </Pressable>
           </View>
-          <KeyboardAwareScrollView>
-          <View style={[container.tasklistblock,{zIndex:0}]}>
+          <Animated.View
+            style={[
+              container.listblock,
+              {
+                marginBottom: isKeyboardOpen
+                  ? openKeyboardAnimationValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, height * 3 / 10],
+                    })
+                  : closeKeyboardAnimationValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [height * 3 / 10, 0],
+                    }),
+                backgroundColor: colors.primary.white
+              }
+            ]}
+          >
             <SwipeListView 
               data={selectedTab=='all'? dailyData : selectedTab=='DAILY'? dailyData.filter(c=>(c.track==undefined || c.track=='DAILY' || c.track=='UNLISTED')) : dailyData.filter(c=>(c.track==selectedTab))} 
               scrollEnabled={true} 
@@ -222,24 +258,25 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
               rightOpenValue={-80}
               disableRightSwipe={true}
               closeOnRowBeginSwipe={true}
-            />
-            <View style={{flexDirection:'row', height:40, paddingLeft:15, alignItems:'center', borderTopWidth:1,borderTopColor:colors.primary.gray}}>
+              contentContainerStyle={{marginTop:1}}
+              />
+            <View style={{width:'100%',flexDirection:'row', height:40, paddingLeft:15, alignItems:'center', borderTopWidth:1,borderTopColor:colors.primary.gray}}>
               <Controller
                 control= {control}
                 name="task"
                 render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
-                  <>
+                  <View style={{flex:1,flexDirection:'column'}}>
                     <TextInput
                       value={value}
                       onChangeText={onChange}
                       onBlur={onBlur}
                       placeholder="New task in this track for today"
-                      style={{width:'100%',height:40, borderColor: error ? 'red' : '#e8e8e8'}}
+                      style={{width:100,height:40, borderColor: error ? 'red' : '#e8e8e8'}}
                     />
                     {error && (
                       <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
                     )}
-                  </>
+                  </View>
                 )}
                 rules={{
                   required: 'Input a Habit',
@@ -253,14 +290,14 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
                   },
                 }}
               />
-              <Pressable onPress={handleSubmit(addTask)}>
-                <Feather name="plus-circle" size={20} color={colors.primary.purple} style={{right:30}}/>
+              <Pressable onPress={handleSubmit(addTask)} style={{marginHorizontal:10}}>
+                <Feather name="plus-circle" size={20} color={colors.primary.purple}/>
               </Pressable>
             </View>
-          </View>
-          </KeyboardAwareScrollView>
+          </Animated.View>
+
         </View>
-        <TouchableOpacity onPress={() => setAddModalVisible(true)} style={{justifyContent: 'center', position: 'absolute', bottom:90, right: 15, flex: 1}}>
+        <TouchableOpacity onPress={() => setAddModalVisible(true)} style={{justifyContent: 'center', position: 'absolute', bottom:55, right: 15, flex: 1}}>
           <Feather name='plus-circle' size={40} color={colors.primary.purple} />
         </TouchableOpacity> 
         <NewTask
@@ -278,7 +315,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
       />
       </View>
       
-    
+
   );
 }
 export default TodayTasks;
