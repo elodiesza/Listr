@@ -1,7 +1,9 @@
-import { View, ScrollView, Text, Button, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView, SafeAreaView, Text, Button, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { CommonActions } from '@react-navigation/native';
-
+import React from 'react';
+import SettingsTitle from '../../components/SettingsTitle';
+import { container } from '../../styles';
 
 const About = () => {
     const navigation = useNavigation();
@@ -11,13 +13,14 @@ const About = () => {
     return (
         
 
-        <View>
-            <Text> This is Account page</Text>
-            <TouchableOpacity onPress={onAboutPressed} >
-                <Text> Press </Text>
-            </TouchableOpacity>
+        <SafeAreaView style={container.container}>
+            <SettingsTitle returnpress={onAboutPressed}title={'ABOUT'}/>
+            <View style={container.body}>
+                <Text> This is About page</Text>
+            </View>
+            
         
-        </View>
+        </SafeAreaView>
 
     );
 };

@@ -69,6 +69,7 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
   const {control, handleSubmit, reset} = useForm();
   const [value, setValue] = useState('');
 
+  console.warn(tasks)
 
   useEffect(() => {
     db.transaction(tx => {
@@ -116,9 +117,9 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
               let copyTime=existingRecurringTasks[i].time;
               db.transaction(tx => {
                 tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,monthly,track,time,section) values (?,?,?,?,?,?,?,?,?,?,?)',
-                [uuid.v4(),newTask,newDate.getFullYear(),newDate.getMonth(),1,0,1,true,copytrack,copyTime, undefined],
+                [uuid.v4(),newTask,newDate.getFullYear(),newDate.getMonth(),null,0,1,true,copytrack,copyTime, undefined],
                   (txtObj,resultSet)=> {   
-                    existingTasks.push({ id: uuid.v4(), task: newTask, year:newDate.getFullYear(), month:newDate.getMonth(), day:1, taskState:0, recurring:1, monthly: true, track:copytrack, time:copyTime, section:undefined});
+                    existingTasks.push({ id: uuid.v4(), task: newTask, year:newDate.getFullYear(), month:newDate.getMonth(), day:null, taskState:0, recurring:1, monthly: true, track:copytrack, time:copyTime, section:undefined});
                     setTasks(existingTasks);
                   },
                 );
@@ -191,10 +192,10 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
     let existingTasks = [...tasks]; 
     db.transaction((tx) => {
       tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
-      [uuid.v4(),data.task,year,month,undefined,0,0,1,undefined,null,undefined],
+      [uuid.v4(),data.task,year,month,undefined,0,0,true,undefined,null,undefined],
       (txtObj,resultSet)=> {    
         existingTasks.push({ id: uuid.v4(), task: data.task, year:year, month:month, day:undefined, taskState:0, recurring:0, 
-          monthly:1, track:undefined, time:null, section: undefined});
+          monthly:true, track:undefined, time:null, section: undefined});
         setTasks(existingTasks);
       },
       (txtObj, error) => console.warn('Error inserting data:', error)
@@ -237,7 +238,7 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
               scrollEnabled={true} 
               renderItem={({ item }) => <Task db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} setTracks={setTracks} 
               sections={undefined} date={new Date(year,month,1)} task={item.task} taskState={item.taskState} id={item.id} track={undefined} 
-              time={undefined} section={undefined} trackScreen={false} archive={false} recurring={item.recurring} tabcolor={undefined} monthly={1} year={item.year} month={item.monthly} day={item.day}/>} 
+              time={undefined} section={undefined} trackScreen={false} archive={false} recurring={item.recurring} tabcolor={undefined} monthly={true} year={item.year} month={item.monthly} day={item.day}/>} 
               renderHiddenItem={({ item }) => <DeleteItem id={item.id} />} bounces={false} 
               rightOpenValue={-100}
               disableRightSwipe={true}
@@ -253,7 +254,7 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
                       value={value}
                       onChangeText={onChange}
                       onBlur={onBlur}
-                      placeholder="New task in this track for this month"
+                      placeholder="Insert new task in this track for this month"
                       style={{width:'100%',height:40, borderColor: error ? 'red' : '#e8e8e8'}}
                     />
                     {error && (

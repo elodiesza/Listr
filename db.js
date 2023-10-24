@@ -13,7 +13,7 @@ const useDatabase = () => {
   const [statuslist, setStatuslist] = useState([]);
   const [statusrecords, setStatusrecords] = useState([]);
   const [logs, setLogs] = useState([]);
-  const [highlight, setHighlight] = useState([]);
+  const [settings, setSettings] = useState([]);
 
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const useDatabase = () => {
       );
     });
     db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, task TEXT, year INTEGER, month INTEGER, day INTEGER, taskState INTEGER, recurring INTEGER, monthly BOOLEAN, track INTEGER, time TEXT, section TEXT, UNIQUE(task,year,month,day))')
+      tx.executeSql('CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, task TEXT, year INTEGER, month INTEGER, day INTEGER, taskState INTEGER, recurring INTEGER, monthly BOOLEAN, track TEXT, time TEXT, section TEXT, UNIQUE(task,year,month,day))')
     });
     db.transaction(tx => {
       tx.executeSql('SELECT * FROM tasks', null,
@@ -39,7 +39,7 @@ const useDatabase = () => {
     });
 
     db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS sections (id TEXT PRIMARY KEY, section TEXT, track TEXT)')
+      tx.executeSql('CREATE TABLE IF NOT EXISTS sections (id TEXT PRIMARY KEY, section TEXT, track TEXT, UNIQUE(section,track))')
     });
     db.transaction(tx => {
       tx.executeSql('SELECT * FROM sections', null,
@@ -88,12 +88,12 @@ const useDatabase = () => {
     });
 
     db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS highlight (id TEXT PRIMARY KEY, color TEXT)')
+      tx.executeSql('CREATE TABLE IF NOT EXISTS settings (id TEXT PRIMARY KEY, highlight TEXT, postpone BOOLEAN, started BOOLEAN, notifications BOOLEAN, expirytime INTEGER, weekstart BOOLEAN)')
     });
     db.transaction(tx => {
-      tx.executeSql('SELECT * FROM highlight', null,
-      (txObj, resultSet) => setHighlight(resultSet.rows._array),
-      (txObj, error) => console.log('error selecting highlight color')
+      tx.executeSql('SELECT * FROM settings', null,
+      (txObj, resultSet) => setSettings(resultSet.rows._array),
+      (txObj, error) => console.log('error selecting settings')
       );
     });
 
@@ -101,7 +101,6 @@ const useDatabase = () => {
   
   },[load]);
 
-  // Return the states and any relevant functions that you want to access from App.js
   return {
     isLoading,
     tasks,
@@ -113,7 +112,7 @@ const useDatabase = () => {
     statuslist,
     statusrecords,
     logs,
-    highlight,
+    settings,
     loadx,
     setTasks,
     setTracks,
@@ -124,7 +123,7 @@ const useDatabase = () => {
     setStatuslist,
     setStatusrecords,
     setLogs,
-    setHighlight,
+    setSettings,
   };
 };
 

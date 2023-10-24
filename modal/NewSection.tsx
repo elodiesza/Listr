@@ -84,7 +84,7 @@ function NewSection({db, sections, setSections, track, newSectionVisible, setNew
                 }}
                 />
                 <Pressable onPress={handleSubmit(addSection)} style={{justifyContent:'center',height:40, flex:1, alignItems:'center'}}>
-                  <Feather name='plus-circle' size={20}/>
+                  <Feather name='plus-circle' size={20} color={colors.primary.purple}/>
                 </Pressable>
             </View>  
         </TouchableWithoutFeedback>

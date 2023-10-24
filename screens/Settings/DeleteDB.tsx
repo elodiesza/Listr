@@ -4,70 +4,62 @@ import { useState } from 'react';
 import { CommonActions } from '@react-navigation/native';
 import { container,colors } from '../../styles';
 import SettingsTitle from '../../components/SettingsTitle';
-import { Ionicons, MaterialIcons, Feather, MaterialCommunityIcons, Entypo, SimpleLineIcons } from '@expo/vector-icons';
+import { Ionicons, Entypo, SimpleLineIcons } from '@expo/vector-icons';
 import Color from '../../components/Color';
+import DeleteDBvalid from '../../modal/DeleteDBvalid';
 
-const DeleteDB = ({db, tasks, setTasks, tracks, setTracks, load, loadx, 
-    statuslist, setStatuslist, statusrecords, setStatusrecords,logs, setLogs}) => {
+const DeleteDB = ({db, tasks, setTasks, tracks, setTracks,
+    statuslist, setStatuslist, statusrecords, setStatusrecords,logs, setLogs, progress, setProgress}) => {
 
     const navigation = useNavigation();
     const onReturnPressed =()=> {navigation.dispatch(CommonActions.goBack())};
 
- 
+      const [selectedData, setSelectedData] = useState('');
+      const [deleteVisible, setDeleteVisible] = useState(false);
 
     return (
 
         <SafeAreaView style={container.container}>
             <SettingsTitle returnpress={onReturnPressed}title={'Delete databases'}/>
             <View style={container.body}>
-                <Pressable style={container.setting} onPress={()=>
-                        db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS statusrecords', null,
-                        (txObj, resultSet) => setStatusrecords([]),
-                        (txObj, error) => console.log('error selecting status records')
-                        )})}>
-                    <Entypo name="progress-full" size={25}/>
-                    <Text style={{marginLeft:10, flex:1}}>Status records</Text>
-                    <Color color={statusrecords==undefined?colors.primary.white:colors.primary.blue}/>
-                </Pressable> 
-                <Pressable style={container.setting} onPress={()=>
-                        db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS tasks', null,
-                        (txObj, resultSet) => setTasks([]),
-                        (txObj, error) => console.log('error selecting tasks')
-                      )})}>
+                <Pressable style={container.setting} onPress={()=>{setSelectedData('tasks');setDeleteVisible(true)}}>
                     <Ionicons name="checkbox-outline" size={25}/>
                     <Text style={{marginLeft:10, flex:1}}>Tasks</Text>
-                    <Color color={tasks==undefined?colors.primary.white:colors.primary.blue}/>
+                    <Color color={tasks.length==0?colors.primary.white:colors.primary.purple}/>
                 </Pressable>        
-                <Pressable style={container.setting} onPress={()=>
-                        db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS tracks', null,
-                        (txObj, resultSet) => setTracks([]),
-                        (txObj, error) => console.log('error selecting tracks')
-                      )
-                    })}>
+                <Pressable style={container.setting} onPress={()=>{setSelectedData('tracks');setDeleteVisible(true)}}>
                     <SimpleLineIcons name="notebook" size={25}/>
                     <Text style={{marginLeft:10, flex:1}}>Tracks</Text>
-                    <Color color={tracks==undefined?colors.primary.white:colors.primary.blue}/>
+                    <Color color={tracks.length==0?colors.primary.white:colors.primary.purple}/>
                 </Pressable>   
-                <Pressable style={container.setting} onPress={()=>
-                        db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS logs', null,
-                        (txObj, resultSet) => setLogs([]),
-                        (txObj, error) => console.log('error selecting logs')
-                      );
-                    })}>
+                <Pressable style={container.setting} onPress={()=>{setSelectedData('logs');setDeleteVisible(true)}}>
                     <Ionicons name="list" size={25}/>
                     <Text style={{marginLeft:10, flex:1}}>Logs</Text>
-                    <Color color={logs==undefined?colors.primary.white:colors.primary.blue}/>
+                    <Color color={logs.length==0?colors.primary.white:colors.primary.purple}/>
                 </Pressable>
-                <Pressable style={container.setting} onPress={()=>
-                        db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS statuslist', null,
-                        (txObj, resultSet) => setStatuslist([]),
-                        (txObj, error) => console.log('error selecting status list')
-                      );
-                    })}>  
+                <Pressable style={container.setting} onPress={()=>{setSelectedData('sections');setDeleteVisible(true)}}>  
+                    <Ionicons name="folder" size={25}/>
+                    <Text style={{marginLeft:10, flex:1}}>Sections</Text>
+                    <Color color={statuslist.length==0?colors.primary.white:colors.primary.purple}/>
+                </Pressable>
+                <Pressable style={container.setting} onPress={()=>{setSelectedData('progress');setDeleteVisible(true)}}>  
+                    <Entypo name="progress-two" size={25}/>
+                    <Text style={{marginLeft:10, flex:1}}>Progress bars</Text>
+                    <Color color={statuslist.length==0?colors.primary.white:colors.primary.purple}/>
+                </Pressable>
+                <Pressable style={container.setting} onPress={()=>{setSelectedData('statuslist');setDeleteVisible(true)}}>  
                     <Entypo name="progress-full" size={25}/>
                     <Text style={{marginLeft:10, flex:1}}>StatusLists</Text>
-                    <Color color={statuslist==undefined?colors.primary.white:colors.primary.blue}/>
+                    <Color color={statuslist.length==0?colors.primary.white:colors.primary.purple}/>
                 </Pressable>
+                <Pressable style={container.setting} onPress={()=>{setSelectedData('statusrecords');setDeleteVisible(true)}}>
+                    <Entypo name="progress-full" size={25}/>
+                    <Text style={{marginLeft:10, flex:1}}>Status records</Text>
+                    <Color color={statusrecords.length==0?colors.primary.white:colors.primary.purple}/>
+                </Pressable> 
+                <DeleteDBvalid db={db} setTasks={setTasks} setTracks={setTracks} setProgress={setProgress} 
+                 setStatusrecords={setStatusrecords} setLogs={setLogs} setStatuslist={setStatuslist} 
+                selectedData={selectedData} deleteVisible={deleteVisible} setDeleteVisible={setDeleteVisible}/>
             </View>
         </SafeAreaView>
      

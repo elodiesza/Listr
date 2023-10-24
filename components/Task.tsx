@@ -16,7 +16,6 @@ function Task({db, tasks, setTasks, tracks, setTracks, sections, date,task, task
   const [value, setValue] = useState('');
   const [editOn,setEditOn] = useState(false);
 
-console.warn(tasks)
 
   const today= new Date();
   const updateTaskState = () => {
@@ -70,9 +69,9 @@ console.warn(tasks)
         });
         db.transaction(tx => {
           tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,monthly,track,time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
-          [ uuid.v4(),postponedTask,nextDayYear,nextDayMonth,nextDayDay,0,0,0,copytrack,copyTime, section],
+          [ uuid.v4(),postponedTask,nextDayYear,nextDayMonth,nextDayDay,0,0,false,copytrack,copyTime, section],
             (txtObj,resultSet)=> {   
-              existingTasks.push({ id: uuid.v4(), task: postponedTask, year: nextDayYear, month:nextDayMonth, day:nextDayDay, taskState:0, recurring:0, monthly:0, track:copytrack, time:copyTime, section:section});
+              existingTasks.push({ id: uuid.v4(), task: postponedTask, year: nextDayYear, month:nextDayMonth, day:nextDayDay, taskState:0, recurring:0, monthly:false, track:copytrack, time:copyTime, section:section});
             },
           );
         });
@@ -192,7 +191,7 @@ console.warn(tasks)
       <View style={{display:time==undefined?"none":"flex",width:60,height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
           <Text style={{fontSize:10, right:10}}>{time=="Invalid date"?undefined: time==undefined? undefined:taskTime}</Text>
       </View>
-      <View style={{display:(monthly==1 && day!==null)?"flex":"none",width:60,height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
+      <View style={{display:(monthly && day!==null && day!==undefined)?"flex":"none",width:60,height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
           <Text style={{fontSize:10, right:10}}>{moment(new Date(year,month+1,day)).format("MM/DD")}</Text>
       </View>
       <Pressable onPress={()=> updateTaskState()} style={{display:editOn?'none':'flex',marginRight:5}}>

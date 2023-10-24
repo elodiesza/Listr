@@ -1,5 +1,4 @@
 import { ImageBackground, View, Text, Button, TouchableOpacity, Dimensions, StyleSheet, Pressable, SafeAreaView, FlatList } from 'react-native';
-import Tab from '../components/Tab';
 import { colors, container, paleColor } from '../styles';
 import { useEffect, useState } from 'react';
 import { Feather, MaterialIcons, Entypo, Ionicons} from '@expo/vector-icons';
@@ -12,23 +11,26 @@ import NewProgress from '../modal/NewProgress';
 import NewTrack from '../modal/NewTrack';
 import NewStatus from '../modal/NewStatus';
 import Status from '../components/Status';
+import DeleteTrack from '../modal/DeleteTrack';
+import DeleteSection from '../modal/DeleteSection';
 import background from '../assets/images/design/background.jpg';
 
 const width = Dimensions.get('window').width;
 
-function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, progress, setProgress, statuslist, setStatuslist, statusrecords, setStatusrecords}) {
+function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
+    progress, setProgress, statuslist, setStatuslist, statusrecords, setStatusrecords, settings}) {
 
     const today= new Date();
     const thisYear = today.getFullYear();
     const thisMonth = today.getMonth();
     const day = today.getDate();
-    const tabstitles =[... new Set(tracks.map(c => c.track))];
-    const tabstitleslength = tabstitles.length;
     const [selectedTab, setSelectedTab] = useState('UNLISTED');
     const [selectedTabColor, setSelectedTabColor] = useState(selectedTab==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTab).map(c=>c.color)[0]);
     const [newSectionVisible, setNewSectionVisible] = useState(false);
     const [newTrackVisible, setNewTrackVisible] = useState(false);
     const [newTaskVisible, setNewTaskVisible] = useState(false);
+    const [deleteTrackVisible, setDeleteTrackVisible] = useState(false);
+    const [deleteSectionVisible, setDeleteSectionVisible] = useState(false);
     const [newProgressVisible, setNewProgressVisible] = useState(false);
     const [newStatusVisible, setNewStatusVisible] = useState(false);
     const [selectedSection, setSelectedSection] = useState('');
@@ -196,97 +198,6 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
         );
     };
 
-    const DeleteTrack = () => {
-        const id = tracks.filter((c) => c.track == selectedTab).map((c) => c.id)[0];
-        db.transaction(
-            (tx) => {
-            tx.executeSql(
-                'DELETE FROM sections WHERE track = ?',
-                [id],
-                (txObj, resultSet) => {
-                if (resultSet.rowsAffected > 0) {
-                    let existingSections = [...sections].filter((c) => c.track !== selectedTab);
-                    setSections(existingSections);
-                }
-                },
-                (txObj, error) => console.log(error)
-            );
-            }
-        );
-
-        db.transaction(
-            (tx) => {
-            tx.executeSql(
-                'DELETE FROM tasks WHERE track = ?',
-                [id],
-                (txObj, resultSet) => {
-                if (resultSet.rowsAffected > 0) {
-                    let existingTasks = [...tasks].filter((c) => c.track !== selectedTab);
-                    setTasks(existingTasks);
-                }
-                },
-                (txObj, error) => console.log(error)
-            );
-            }
-        );
-
-        db.transaction(
-            (tx) => {
-            tx.executeSql(
-                'DELETE FROM tracks WHERE id = ?',
-                [id],
-                (txObj, resultSet) => {
-                if (resultSet.rowsAffected > 0) {
-                    let existingTracks = [...tracks].filter((c) => c.id !== id);
-                    setTracks(existingTracks);
-                    setSelectedTab(existingTracks.map(c=>c.track)[0]);
-                }
-                },
-                (txObj, error) => console.log(error)
-            );
-            }
-        );
-        setSelectedTabColor(colors.pale.default);
-    };
-
-    const DeleteSection = () => {
-        const id= sections.filter(c=>c.section==selectedSection).map(c=>c.id)[0];
-        db.transaction(tx=> {
-            tx.executeSql('DELETE FROM sections WHERE id = ?', [id],
-            (txObj, resultSet) => {
-                if (resultSet.rowsAffected > 0) {
-                    let existingSections = [...sections].filter(c=>c.id!==id);
-                    setSections(existingSections);
-                  }
-            },
-            (txObj, error) => console.log(error)
-            );       
-        })  
-        const taskid= tasks.filter(c=>c.section==selectedSection).map(c=>c.id)[0];
-        db.transaction(tx=> {
-            tx.executeSql('DELETE FROM tasks WHERE id = ?', [taskid],
-            (txObj, resultSet) => {
-                if (resultSet.rowsAffected > 0) {
-                    let existingTasks = [...tasks].filter(c=>(c.section!==selectedSection));
-                    setTasks(existingTasks);
-                  }
-            },
-            (txObj, error) => console.log(error)
-            );       
-        })   
-        const progressid= progress.filter(c=>c.section==selectedSection).map(c=>c.id)[0];
-        db.transaction(tx=> {
-            tx.executeSql('DELETE FROM progress WHERE id = ?', [progressid],
-            (txObj, resultSet) => {
-                if (resultSet.rowsAffected > 0) {
-                    let existingProgress = [...progress].filter(c=>(c.section!==selectedSection));
-                    setProgress(existingProgress);
-                  }
-            },
-            (txObj, error) => console.log(error)
-            );       
-        })    
-    };
 
     return (
         <ImageBackground source={background} resizeMode="cover" style={container.container}>
@@ -362,7 +273,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
                                         keyExtractor= {(item,index) => index.toString()}
                                     />
                                     <View style={{flex:1, backgroundColor: colors.primary.white, flexDirection:'row', justifyContent:'flex-end'}}>
-                                        <TouchableOpacity onPress={()=>{DeleteSection();setSelectedSection(item.section)}} style={{justifyContent: 'center', alignItems:'flex-end',marginVertical:2, marginHorizontal:2}}>
+                                        <TouchableOpacity onPress={()=>{setSelectedSection(item.section);setDeleteSectionVisible(true)}} style={{justifyContent: 'center', alignItems:'flex-end',marginVertical:2, marginHorizontal:2}}>
                                             <Feather name='trash-2' size={25} color={colors.primary.purple}  />
                                         </TouchableOpacity>  
                                         <TouchableOpacity onPress={()=>{setNewStatusVisible(true);setSelectedSection(item.section)}} style={{justifyContent: 'center', alignItems:'flex-end',marginVertical:2, marginHorizontal:2}}>
@@ -384,6 +295,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
                             keyExtractor= {(item,index) => index.toString()}
                             contentContainerStyle={{width:"100%"}}
                             showsHorizontalScrollIndicator={false}
+                            bounces={false}
                         />
                         <NewSection db={db} sections={sections} setSections={setSections} track={selectedTab} newSectionVisible={newSectionVisible} setNewSectionVisible={setNewSectionVisible}/>
                         <NewTrack db={db} tracks={tracks} setTracks={setTracks} newTrackVisible={newTrackVisible} setNewTrackVisible={setNewTrackVisible} setSelectedTab={setSelectedTab} setSelectedTabColor={setSelectedTabColor}/>
@@ -473,9 +385,9 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
                             </View>
                             <View style={{width:'100%', borderBottomLeftRadius:20, borderBottomRightRadius:20}}>
                                 <View style={{ display: selectedTab==undefined? "none":"flex", width: "100%", height: 35, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                                    <View style={{justifyContent: 'center', alignItems: 'flex-end', marginVertical: 2, marginHorizontal: 2 }}>
+                                    <View style={{display: selectedTab=='UNLISTED'?'none':'flex',justifyContent: 'center', alignItems: 'flex-end', marginVertical: 2, marginHorizontal: 2 }}>
                                         <TouchableOpacity>
-                                            <Feather onPress={()=>DeleteTrack()} name='trash-2' size={30} color={colors.primary.purple}  />
+                                            <Feather onPress={()=>setDeleteTrackVisible(true)} name='trash-2' size={30} color={colors.primary.purple}  />
                                         </TouchableOpacity>
                                     </View>
                                     <View style={{ justifyContent: 'center', alignItems: 'flex-end', marginVertical: 2, marginHorizontal: 2 }}>
@@ -483,6 +395,8 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
                                             <Feather name='plus-circle' size={30} color={colors.primary.purple}  />
                                         </TouchableOpacity>
                                     </View>
+                                    <DeleteTrack deleteTrackVisible={deleteTrackVisible} setDeleteTrackVisible={setDeleteTrackVisible} tracks={tracks} setTracks={setTracks} db={db} setSelectedTab={setSelectedTab} selectedTab={selectedTab} sections={sections} setSections={setSections} tasks={tasks} setTasks={setTasks}/>
+                                    <DeleteSection deleteSectionVisible={deleteSectionVisible} setDeleteSectionVisible={setDeleteSectionVisible} db={db} selectedTab={selectedTab} setSelectedTab={setSelectedTab} sections={sections} setSections={setSections} tasks={tasks} setTasks={setTasks} selectedSection={selectedSection} setSelectedSection={setSelectedSection} progress={progress} setProgress={setProgress} statusrecords={statusrecords} setStatusrecords={setStatusrecords}/>
                                 </View>
                             </View>
                         </View>  

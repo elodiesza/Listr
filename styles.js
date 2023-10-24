@@ -274,7 +274,7 @@ export const container = StyleSheet.create({
         justifyContent: 'space-evenly',
         alignContent:'space-between',
         padding:10,
-        margin:10,
+        margin:5,
     },
     keyNumber:{
         fontSize: 30,

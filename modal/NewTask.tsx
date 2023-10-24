@@ -68,12 +68,11 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
     };
 
   const addTask = async (data) => {
-
     let existingTasks = [...tasks]; 
     db.transaction((tx) => {
-      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',[uuid.v4(),data.task,tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'),tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1,(tracksScreen||monthly==1)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'),0,recurring==1?1:0,monthly?1:0,selectedTrack,addTime=='Add Time'?null:time.toString(),section==undefined?undefined:section],
+      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',[uuid.v4(),data.task,tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'),tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1,(tracksScreen||monthly==true)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'),0,recurring==1?1:0,monthly?true:false,selectedTrack,addTime=='Add Time'?null:time.toString(),section==undefined?undefined:section],
       (txtObj,resultSet)=> {    
-        existingTasks.push({ id: uuid.v4(), task: data.task, year:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'), month:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1, day:(tracksScreen||monthly==1)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'), taskState:0, recurring:recurring==1?1:0, monthly:monthly?1:0, track:selectedTrack, time:addTime=='Add Time'?null:time.toString(), section});
+        existingTasks.push({ id: uuid.v4(), task: data.task, year:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'), month:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1, day:(tracksScreen||monthly==true)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'), taskState:0, recurring:recurring==1?1:0, monthly:monthly?true:false, track:selectedTrack, time:addTime=='Add Time'?null:time.toString(), section});
         setTasks(existingTasks);
       },
       (txtObj, error) => console.warn('Error inserting data:', error)

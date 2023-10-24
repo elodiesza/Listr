@@ -63,6 +63,8 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
   const year = today.getFullYear();
   const day = today.getDate();
 
+  console.log(today);
+
   const tabstitles =[... new Set(tracks.map(c => c.track))];
   const tabstitleslength = tabstitles.length;
 
@@ -106,7 +108,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
 
             let existingTasks=[...tasks];
 
-            let existingRecurringTasks=(existingTasks.length==0)? '':existingTasks.filter(c=>(c.recurring==1 && c.year==lastLog.year && c.month==lastLog.month && c.day==lastLog.day));
+            let existingRecurringTasks=(existingTasks.length==0)? '':existingTasks.filter(c=>(c.recurring==1 && c.monthly==false && c.year==lastLog.year && c.month==lastLog.month && c.day==lastLog.day));
             existingLogs=[];
 
             if (lastLog!==undefined) {
@@ -119,9 +121,9 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
                   let copyTime=existingRecurringTasks[i].time;
                   db.transaction(tx => {
                     tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,monthly,track,time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
-                    [ uuid.v4(),newTask,newDate.getFullYear(),newDate.getMonth(),newDate.getDate(),0,1,0,copytrack,copyTime,undefined],
+                    [ uuid.v4(),newTask,newDate.getFullYear(),newDate.getMonth(),newDate.getDate(),0,1,false,copytrack,copyTime,undefined],
                       (txtObj,resultSet)=> {   
-                        existingTasks.push({ id: uuid.v4(), task: newTask, year:newDate.getFullYear(), month:newDate.getMonth(), day:newDate.getDate(), taskState:0, recurring:1, monthly:0, track:copytrack, time:copyTime, section: undefined});
+                        existingTasks.push({ id: uuid.v4(), task: newTask, year:newDate.getFullYear(), month:newDate.getMonth(), day:newDate.getDate(), taskState:0, recurring:1, monthly:false, track:copytrack, time:copyTime, section: undefined});
                         setTasks(existingTasks);
                       },
                     );
@@ -156,7 +158,6 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
       )
   }
 
-  console.warn(logs)
 
   const addTask = async (data) => {
     let existingTasks = [...tasks]; 
@@ -270,8 +271,8 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
                       value={value}
                       onChangeText={onChange}
                       onBlur={onBlur}
-                      placeholder="New task in this track for today"
-                      style={{width:100,height:40, borderColor: error ? 'red' : '#e8e8e8'}}
+                      placeholder="Insert new task in this track for this day"
+                      style={{flex:1,height:40, borderColor: error ? 'red' : '#e8e8e8'}}
                     />
                     {error && (
                       <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>

@@ -1,4 +1,4 @@
-import { ImageBackground, FlatList, StyleSheet, Text, View, SafeAreaView,Dimensions, Pressable } from 'react-native';
+import { ImageBackground, Text, View, SafeAreaView, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
 import TodayTasks from '../components/TodayTasks';
 import { container } from '../styles';
@@ -8,9 +8,10 @@ import background from '../assets/images/design/background.jpg';
 
 
 const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
-  sections}) => {
+  sections, settings}) => {
 
   var today = new Date();
+
   const [isLoading, setIsLoading] = useState(false);
   const [date, setDate] = useState(today);
 
@@ -39,8 +40,8 @@ const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
           <Feather name='chevron-left' size={30} />
         </Pressable>
         <View style={{alignItems:'center', marginHorizontal:20}}>
-          <Text style={container.headertitle}>
-            {(date.getDate()==today.getDate() && date.getMonth()==today.getMonth() && date.getFullYear()==today.getFullYear())?'TODAY':date<today? 'PAST': 'FUTURE'}
+          <Text style={[container.headertitle,{display: (date.getDate()==today.getDate() && date.getMonth()==today.getMonth() && date.getFullYear()==today.getFullYear())? 'flex':'none'}]}>
+            TODAY
           </Text>
           <Text style={container.headerdate}>
             {moment(date).format('dddd, DD MMMM YYYY')}

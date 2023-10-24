@@ -21,6 +21,7 @@
     "@react-navigation/native-stack": "^6.9.12",
     "@react-navigation/stack": "^6.3.16",
     "@zaradev/react-native-circular-slider": "^0.1.0",
+    "aws-amplify": "^5.3.11",
     "cli": "^1.0.1",
     "csv-parser": "^3.0.0",
     "d3-interpolate": "^3.0.1",

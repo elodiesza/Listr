@@ -6,7 +6,7 @@ import { container } from '../styles';
 import { Feather } from '@expo/vector-icons';
 import background from '../assets/images/design/background.jpg';
 
-const MonthlyTab = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sections}) => {
+const MonthlyTab = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sections, settings}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   var today = new Date();

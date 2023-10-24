@@ -26,6 +26,7 @@ export default function App() {
     statuslist,
     statusrecords,
     logs,
+    settings,
     loadx,
     setTracks,
     setTasks,
@@ -36,7 +37,9 @@ export default function App() {
     setStatuslist,
     setStatusrecords,
     setLogs,
+    setSettings,
   } = useDatabase();
+
 
 
   return (
@@ -61,7 +64,8 @@ export default function App() {
         tasks={tasks} setTasks={setTasks}
         progress={progress} setProgress={setProgress}
         statuslist={statuslist} setStatuslist={setStatuslist}
-        statusrecords={statusrecords} setStatusrecords={setStatusrecords}/>} 
+        statusrecords={statusrecords} setStatusrecords={setStatusrecords}
+        settings={settings}/>} 
         options={{ headerShown: false, tabBarShowLabel: false,
           tabBarIcon: ({focused}) => (
           <View style={{alignItems: 'center', justifyContent: 'center'}}>
@@ -73,8 +77,7 @@ export default function App() {
         tracks={tracks} setTracks={setTracks} 
         load={load} loadx={loadx}
         sections={sections}
-        statuslist={statuslist} setStatuslist={setStatuslist}
-        statusrecords={statusrecords} setStatusrecords={setStatusrecords}
+        settings={settings}
         />} 
         options={{ headerShown: false, tabBarShowLabel: false, 
           tabBarIcon: ({focused}) => (
@@ -82,10 +85,11 @@ export default function App() {
              <Feather name="sun" size={28} />  
           </View>) }}
         />
-        <Tab.Screen name="Calendar" children={()=><MonthlyTab db={db} tracks={tracks} 
+        <Tab.Screen name="MonthlyTab" children={()=><MonthlyTab db={db} tracks={tracks} 
         tasks={tasks} setTasks={setTasks} 
        setTracks={setTracks} 
         load={load} loadx={loadx} 
+        settings={settings}
         />} 
         options={{ headerShown: false, tabBarShowLabel: false,
           tabBarIcon: ({focused}) => (
@@ -100,6 +104,7 @@ export default function App() {
         statusrecords={statusrecords} setStatusrecords={setStatusrecords}
         statuslist={statuslist} setStatuslist={setStatuslist}
         logs={logs} setLogs={setLogs}
+        settings={settings} setSettings={setSettings}
         />} 
           options={{ headerShown: false, tabBarShowLabel: false,
             tabBarIcon: ({focused}) => (
