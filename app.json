@@ -17,8 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "usesIcloudStorage": true,
-      "bundleIdentifier": "com.ginger.listr",
-      "releaseNotes": "first big bugs fixed"
+      "bundleIdentifier": "com.ginger.listr"
     },
     "android": {
       "adaptiveIcon": {

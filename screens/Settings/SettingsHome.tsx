@@ -2,6 +2,8 @@ import { View, SafeAreaView, Text, Pressable, Button, Image, StyleSheet, Touchab
 import { useNavigation } from '@react-navigation/native';
 import { colors, container } from '../../styles';
 import { Octicons, MaterialIcons, Feather } from '@expo/vector-icons';
+import { Auth } from 'aws-amplify';
+
 
 
 const SettingsHome = () => {
@@ -12,6 +14,15 @@ const SettingsHome = () => {
     const onDataPressed =()=> {navigation.navigate('Data')};
     const onPreferencesPressed =()=> {navigation.navigate('Preferences')};
     const onHelpPressed =()=> {navigation.navigate('Help')};
+
+    const handleLogout = async () => {
+        try {
+          await Auth.signOut();
+          // Perform any additional actions (e.g., navigating to a sign-in screen).
+        } catch (error) {
+          console.error('Error logging out:', error);
+        }
+      };
 
     return (
 
@@ -42,12 +53,12 @@ const SettingsHome = () => {
                     <Text style={{marginLeft:10, color:colors.primary.magenta}}>Help Center</Text>
                     <MaterialIcons name="keyboard-arrow-right" size={25} style={container.settingsArrow}/>
                 </Pressable>
-                <Pressable style={container.setting}>
+                <Pressable onPress={handleLogout} style={container.setting}>
                     <MaterialIcons name="exit-to-app" size={25}/>
-                    <Text style={{marginLeft:10, color:colors.primary.magenta}}>Sign Out</Text>
+                    <Text style={{marginLeft:10, color:colors.primary.magenta}}>Log Out</Text>
                     <MaterialIcons name="keyboard-arrow-right" size={25} style={container.settingsArrow}/>
                 </Pressable>
-                <Text style={{marginLeft:10, color:colors.primary.magenta}}> Settings in magenta are not yet released</Text>
+                <Text style={{marginLeft:10}}> Settings in magenta are not yet released</Text>
             </View>
         </SafeAreaView>
     );
