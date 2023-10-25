@@ -2,7 +2,7 @@
   "expo": {
     "name": "listr app",
     "slug": "trial",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,7 +17,8 @@
     "ios": {
       "supportsTablet": true,
       "usesIcloudStorage": true,
-      "bundleIdentifier": "com.ginger.listr"
+      "bundleIdentifier": "com.ginger.listr",
+      "releaseNotes": "first big bugs fixed"
     },
     "android": {
       "adaptiveIcon": {

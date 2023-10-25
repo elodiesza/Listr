@@ -1,6 +1,6 @@
 {
   "name": "todo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "react-native": "react-native",
@@ -20,7 +20,6 @@
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "@react-navigation/stack": "^6.3.16",
-    "@zaradev/react-native-circular-slider": "^0.1.0",
     "aws-amplify": "^5.3.11",
     "cli": "^1.0.1",
     "csv-parser": "^3.0.0",
@@ -39,19 +38,15 @@
     "lodash": "^4.17.21",
     "lodash.range": "^3.2.0",
     "moment": "^2.29.4",
-    "mongoose": "^7.2.1",
     "react": "18.2.0",
     "react-hook-form": "^7.44.2",
     "react-moment": "^1.1.3",
     "react-native": "0.72.5",
     "react-native-calendar-picker": "^7.1.4",
     "react-native-chart-kit": "^6.12.0",
-    "react-native-circular-slider": "^1.0.1",
     "react-native-date-picker": "^4.2.13",
-    "react-native-dropdown-picker": "^5.4.6",
     "react-native-dropdown-select-list": "^2.0.4",
     "react-native-gesture-handler": "~2.12.0",
-    "react-native-keyboard-aware-scrollview": "^2.1.0",
     "react-native-modal": "^13.0.1",
     "react-native-pie-chart": "^3.0.1",
     "react-native-redash": "^18.1.0",
@@ -65,8 +60,7 @@
     "react-native-uuid": "^2.0.1",
     "react-native-vector-icons": "^9.2.0",
     "toggle-switch-react-native": "^3.3.0",
-    "uuid": "^9.0.0",
-    "xlsx": "^0.18.5"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

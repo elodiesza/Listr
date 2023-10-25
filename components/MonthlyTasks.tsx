@@ -7,7 +7,6 @@ import { container, colors } from '../styles';
 import Task from './Task';
 import uuid from 'react-native-uuid';
 import { useForm, Controller, set } from 'react-hook-form';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
