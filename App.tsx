@@ -1,4 +1,4 @@
-import {Amplify} from 'aws-amplify';
+import {Amplify, API} from 'aws-amplify';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Auth } from 'aws-amplify';

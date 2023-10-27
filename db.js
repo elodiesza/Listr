@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import * as SQLite from 'expo-sqlite';
+import {API, graphqlOperation} from 'aws-amplify';
+import awsconfig from './aws-exports';
+import { listTracks } from './graphql/queries';
 
 
 const useDatabase = () => {
@@ -16,10 +19,21 @@ const useDatabase = () => {
   const [settings, setSettings] = useState([]);
 
 
+  async function fetchTracks() {
+    try {
+      const trackData = await API.graphql(graphqlOperation(listTracks));
+      setTracks(trackData.data.listTracks.items);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     setIsLoading(true);
 
-    db.transaction(tx => {
+   fetchTracks()
+
+    {/*db.transaction(tx => {
       tx.executeSql('CREATE TABLE IF NOT EXISTS tracks (id TEXT PRIMARY KEY, track TEXT, color TEXT, UNIQUE(track))')
     });
     db.transaction(tx => {
@@ -27,7 +41,7 @@ const useDatabase = () => {
       (txObj, resultSet2) => setTracks(resultSet2.rows._array),
       (txObj, error) => console.log('error selecting tracks')
       );
-    });
+    }); */}
     db.transaction(tx => {
       tx.executeSql('CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, task TEXT, year INTEGER, month INTEGER, day INTEGER, taskState INTEGER, recurring INTEGER, monthly BOOLEAN, track TEXT, time TEXT, section TEXT, UNIQUE(task,year,month,day))')
     });

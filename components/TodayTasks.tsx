@@ -63,8 +63,6 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
   const year = today.getFullYear();
   const day = today.getDate();
 
-  console.log(today);
-
   const tabstitles =[... new Set(tracks.map(c => c.track))];
   const tabstitleslength = tabstitles.length;
 
@@ -72,6 +70,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
 
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoading2, setIsLoading2] = useState(true);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState('DAILY');
   const [selectedTabColor, setSelectedTabColor] = useState(selectedTab==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTab).map(c=>c.color)[0]);
@@ -148,9 +147,10 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
           }
         }
       }
-    },[isLoading, logs]);
+      setIsLoading2(false);
+    },[]);
 
-    if (isLoading) {
+    if (isLoading || isLoading2) {
       return (
         <View>
           <Text> Is Loading...</Text>
@@ -208,8 +208,9 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
 };
 
   return (
-
       <View style={container.body}>
+        {(!isLoading&& !isLoading2) && (
+          <>
         <View style={container.block}>
           <View style={{zIndex:1, bottom:-1,flexDirection:'row'}}>
             <View style={{flex:1,flexDirection:'row'}}>
@@ -314,6 +315,8 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
         tracksScreen={false}
         monthly={false}
       />
+      </>
+      )}
       </View>
       
 

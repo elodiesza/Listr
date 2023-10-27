@@ -3,19 +3,25 @@ import { Dimensions,TouchableWithoutFeedback,TouchableOpacity, StyleSheet, TextI
 import { useForm, Controller, set } from 'react-hook-form';
 import { container,colors } from '../styles';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
-import Color from '../components/Color';
 import ColorPicker from '../components/ColorPicker';
 import uuid from 'react-native-uuid';
 import Modal from 'react-native-modal';
+import {API, graphqlOperation} from 'aws-amplify';
+import {createTrack} from '../graphql/mutations';
+
 
 const width = Dimensions.get('window').width;
 
 function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, setSelectedTab, setSelectedTabColor}) {
 
-
+  const [formstate, setFormState] = useState({id: '', name: '', color: ''});
   const {control, handleSubmit, reset} = useForm();
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
   const [picked, setPicked] = useState('');
+
+  function setInput(key, value) {
+    setFormState({...formstate, [key]: value});
+  }
 
   useEffect(() => {
     if (!newTrackVisible) {
@@ -24,24 +30,23 @@ function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, s
   }, [newTrackVisible, reset]);
 
 
-  const addTrack = async (data) => {
-    let existingtracks = [...tracks]; 
-        db.transaction((tx) => {
-            tx.executeSql(
-              'INSERT INTO tracks (id,track, color) VALUES (?,?, ?)',
-              [ uuid.v4(),data.name, picked],
-              (txtObj, trackResultSet) => {
-                const newTrack = {
-                  id: uuid.v4(),
-                  track: data.name,
-                  color: picked==undefined? colors.primary.default : picked,
-                };
-                existingtracks.push(newTrack);
-                setTracks(existingtracks); 
-              }
-            );
-        });
-    setSelectedTab(data.name);
+  async function addTrack() {
+    try {
+      const track = await API.graphql({
+        query: createTrack,
+        variables: {
+          input: {
+            "name": formstate.name,
+            "color": picked
+          }
+        }
+      });
+      const newTracks = [...tracks, track];
+      setTracks(newTracks);
+    } catch (err) {
+      console.log('error creating track:', err);
+    }
+    setSelectedTab(formstate.name);
     setSelectedTabColor(picked);
     setPicked('');
     setNewTrackVisible(false);
@@ -76,8 +81,8 @@ function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, s
                     render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
                       <View style={{flexDirection:'column',flex:1}}>
                         <TextInput
-                          value={value}
-                          onChangeText={onChange}
+                          value={formstate.name}
+                          onChangeText={val=>setInput('name', val)}
                           autoCapitalize = {"characters"}
                           onBlur={onBlur}
                           placeholder="NAME"
@@ -107,7 +112,7 @@ function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, s
                   }}
                   />
                   <Pressable style={[container.color,{backgroundColor:picked}]} onPress={()=>setColorPickerVisible(true)} />
-                  <Pressable onPress={handleSubmit(addTrack)} style={{justifyContent:'center',height:40, width:20, alignItems:'center',marginRight:5}}>
+                  <Pressable onPress={addTrack} style={{justifyContent:'center',height:40, width:20, alignItems:'center',marginRight:5}}>
                     <Feather name='plus-circle' color={colors.primary.purple} size={20}/>
                   </Pressable>
                 </View>
