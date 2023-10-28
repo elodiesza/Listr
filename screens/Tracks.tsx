@@ -1,4 +1,4 @@
-import { ImageBackground, View, Text, Button, TouchableOpacity, Dimensions, StyleSheet, Pressable, SafeAreaView, FlatList } from 'react-native';
+import { ImageBackground, View, Text, TouchableOpacity, Dimensions, Pressable, SafeAreaView, FlatList } from 'react-native';
 import { colors, container, paleColor } from '../styles';
 import { useEffect, useState } from 'react';
 import { Feather, MaterialIcons, Entypo, Ionicons} from '@expo/vector-icons';
@@ -18,8 +18,7 @@ import background from '../assets/images/design/background.jpg';
 const width = Dimensions.get('window').width;
 
 function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
-    progress, setProgress, statuslist, setStatuslist, statusrecords, setStatusrecords, settings}) {
-
+    progress, setProgress, statuslist, setStatuslist, statusrecords, setStatusrecords, settings }) {
 
     const today= new Date();
     const thisYear = today.getFullYear();
@@ -35,7 +34,6 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
     const [newProgressVisible, setNewProgressVisible] = useState(false);
     const [newStatusVisible, setNewStatusVisible] = useState(false);
     const [selectedSection, setSelectedSection] = useState('');
-    const [showSection, setShowSection] = useState(true);
     const [showArchive, setShowArchive] = useState(false);
 
     const arrowArray = () => {
@@ -61,7 +59,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
 
     useEffect(() => {
         setArrow(arrowArray());
-        setSelectedTabColor(selectedTab==undefined? colors.primary.default:tracks.filter(c=>c.name==selectedTab).map(c=>c.color)[0]);
+        setSelectedTabColor(selectedTab==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTab).map(c=>c.color)[0]);
         setSelectedSection(sections.filter(c=>c.track==selectedTab).map(c=>c.section)[0]);
     }, [selectedTab,tracks]);
 
@@ -191,9 +189,9 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
 
     const TabItem = ({item,index, selected}) => {
         return (
-            <Pressable onPress={()=>setSelectedTab(item.name)} style={[container.tab,{zIndex:item.name==selectedTab?1:0,bottom:item.name==selectedTab? -1:0,borderRightWidth:item.name==selectedTab? 0.5:0,borderLeftWidth:item.name==selectedTab? 0.5:0,borderTopWidth:item.name==selectedTab? 0.5:0,backgroundColor:item.color!==""?paleColor(item.color):colors.primary.default}]}>
+            <Pressable onPress={()=>setSelectedTab(item.track)} style={[container.tab,{zIndex:item.track==selectedTab?1:0,bottom:item.track==selectedTab? -1:0,borderRightWidth:item.track==selectedTab? 0.5:0,borderLeftWidth:item.track==selectedTab? 0.5:0,borderTopWidth:item.track==selectedTab? 0.5:0,backgroundColor:item.color!==""?paleColor(item.color):colors.primary.default}]}>
                 <Text style={container.tabtext}>
-                    {item.name}
+                    {item.track}
                 </Text>
           </Pressable>
         );
@@ -212,8 +210,8 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                 <View style={container.block}>
                     <View style={{height:29, zIndex:1, bottom:-1, flexDirection:'row'}}>
                         <FlatList
-                            data={[... new Set(tracks),{'id':'unlisted','name':'UNLISTED','color':colors.primary.default}]}
-                            renderItem={({item,index}) =>  <TabItem item={item} index={index} selected={selectedTab==item.name?-0.5:0} />}
+                            data={[... new Set(tracks),{'id':'unlisted','track':'UNLISTED','color':colors.primary.default}]}
+                            renderItem={({item,index}) =>  <TabItem item={item} index={index} selected={selectedTab==item.track?-0.5:0} />}
                             horizontal={true}
                             keyExtractor= {(item,index) => index.toString()}
                             contentContainerStyle={{flexDirection:'row-reverse'}}
@@ -316,7 +314,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                         renderItem={({item,index}) =>
                                         <Task db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} setTracks={setTracks} 
                                         sections={sections} date={undefined} section={item.section} task={item.task} 
-                                        taskState={item.taskState} time={undefined} track={selectedTab} id={item.id} trackScreen={false} archive={true}/>
+                                        taskState={item.taskState} time={undefined} track={selectedTab} id={item.id} trackScreen={true} archive={true}/>
                                         }
                                         renderHiddenItem={({ item }) => <ArchiveTaskSwipeItem id={item.id} />} 
                                         bounces={false} 

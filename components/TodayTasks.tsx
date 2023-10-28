@@ -8,11 +8,11 @@ import Task from './Task';
 import uuid from 'react-native-uuid';
 import { useForm, Controller, set } from 'react-hook-form';
 
-const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, sections}) {
-  
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading2, setIsLoading2] = useState(true);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const openKeyboardAnimationValue = new Animated.Value(0);
   const closeKeyboardAnimationValue = new Animated.Value(1);
@@ -63,18 +63,10 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
   const year = today.getFullYear();
   const day = today.getDate();
 
-  const tabstitles =[... new Set(tracks.map(c => c.track))];
-  const tabstitleslength = tabstitles.length;
-
   const {control, handleSubmit, reset} = useForm();
-
   const [logs, setLogs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoading2, setIsLoading2] = useState(true);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState('DAILY');
-  const [selectedTabColor, setSelectedTabColor] = useState(selectedTab==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTab).map(c=>c.color)[0]);
-  const [value, setValue] = useState('');
 
   useEffect(() => {
       db.transaction(tx => {
@@ -150,7 +142,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
       setIsLoading2(false);
     },[]);
 
-    if (isLoading || isLoading2) {
+    if (isLoading) {
       return (
         <View>
           <Text> Is Loading...</Text>
@@ -208,9 +200,8 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
 };
 
   return (
+
       <View style={container.body}>
-        {(!isLoading&& !isLoading2) && (
-          <>
         <View style={container.block}>
           <View style={{zIndex:1, bottom:-1,flexDirection:'row'}}>
             <View style={{flex:1,flexDirection:'row'}}>
@@ -315,8 +306,6 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
         tracksScreen={false}
         monthly={false}
       />
-      </>
-      )}
       </View>
       
 

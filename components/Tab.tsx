@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, SafeAreaView } from 'react-native';
+import { Text, Pressable } from 'react-native';
 import { container } from '../styles';
 import Svg, { Path } from 'react-native-svg';
 

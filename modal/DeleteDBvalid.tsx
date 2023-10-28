@@ -1,6 +1,6 @@
-import { Dimensions,TouchableWithoutFeedback,TouchableOpacity, StyleSheet, TextInput, Pressable, Text, View, FlatList } from 'react-native';
+import { Dimensions,TouchableWithoutFeedback,TouchableOpacity, Pressable, Text, View } from 'react-native';
 import { container,colors } from '../styles';
-import { MaterialIcons, Feather } from '@expo/vector-icons';
+import { MaterialIcons} from '@expo/vector-icons';
 import Modal from 'react-native-modal';
 
 const width = Dimensions.get('window').width;

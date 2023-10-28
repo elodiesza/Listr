@@ -1,16 +1,16 @@
-import { TextInput, TouchableWithoutFeedback, StyleSheet, Button, TouchableOpacity, Text, View, Dimensions, Pressable } from 'react-native';
-import { useState, useEffect } from 'react';
+import { TextInput, Text, View, Dimensions, Pressable } from 'react-native';
+import { useState } from 'react';
 import { MaterialCommunityIcons, Entypo, Feather } from '@expo/vector-icons';
 import moment from 'moment';
 import { container} from '../styles';
 import { colors } from '../styles';
 import uuid from 'react-native-uuid';
-import { useForm, Controller, set } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 
 
 const width = Dimensions.get('window').width;
 
-function Task({db, tasks, setTasks, tracks, setTracks, sections, date,task, taskState, id ,track, time, section, trackScreen, archive, recurring, tabcolor, monthly, year, month, day}) {
+function Task({db, tasks, setTasks, date,task, taskState, id , time, section, trackScreen, recurring, tabcolor, monthly, year, month, day}) {
   
   const {control, handleSubmit, reset} = useForm();
   const [value, setValue] = useState('');

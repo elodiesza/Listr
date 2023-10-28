@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet,Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { colors, container } from '../styles';
 

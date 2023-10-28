@@ -1,5 +1,5 @@
 import { ImageBackground, Text, View, SafeAreaView, Pressable } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import TodayTasks from '../components/TodayTasks';
 import { container } from '../styles';
 import { Feather } from '@expo/vector-icons';

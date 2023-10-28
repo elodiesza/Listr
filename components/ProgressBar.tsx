@@ -1,6 +1,6 @@
-import { StyleSheet, Button, TouchableOpacity, Text, View, Dimensions, Pressable, ScrollView } from 'react-native';
-import { useState, useEffect } from 'react';
-import { container, colors} from '../styles';
+import { Text, View, Dimensions, Pressable} from 'react-native';
+import { useState } from 'react';
+import { colors} from '../styles';
 import Slider from '@react-native-community/slider';
 
 

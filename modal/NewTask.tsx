@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Switch, Dimensions, Button, Alert, TouchableWithoutFeedback,TouchableOpacity, StyleSheet, TextInput, Pressable, Text, View, FlatList } from 'react-native';
+import { Dimensions, Button, TouchableWithoutFeedback,TouchableOpacity, TextInput, Pressable, Text, View, FlatList } from 'react-native';
 import { useForm, Controller, set } from 'react-hook-form';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
@@ -20,11 +20,10 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
   const [time, setTime] = useState(new Date())
   const [showTimePicker, setShowTimePicker] = useState(true);
   const [dateDisplay, setDateDisplay] = useState<"none" | "flex" | undefined>('none');
+  const [addDeadline, setAddDeadline] = useState('Add Deadline');
   const [timeDisplay, setTimeDisplay] = useState<"none" | "flex" | undefined>('none');
   const [addTime, setAddTime] = useState('Add Time');
   const [load, loadx] = useState(false);
-  const [minDate, setMinDate] = useState(new Date());
-  const [maxDate, setMaxDate] = useState(new Date());
   const [selectedTrack, setSelectedTrack] = useState(track);
 
   const [recurring, setRecurring] = useState(0);
@@ -69,17 +68,18 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
   const addTask = async (data) => {
     let existingTasks = [...tasks]; 
     db.transaction((tx) => {
-      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',[uuid.v4(),data.task,tracksScreen?undefined:!showDatePicker?pageDate.getFullYear():moment(date).format('YYYY'),tracksScreen?undefined:!showDatePicker?pageDate.getMonth():parseInt(moment(date).format('MM'))-1,(tracksScreen||monthly==true)?undefined:!showDatePicker?pageDate.getDate():moment(date).format('DD'),0,recurring==1?1:0,monthly?true:false,selectedTrack,addTime=='Add Time'?null:time.toString(),section==undefined?undefined:section],
+      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',[uuid.v4(),data.task,tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'),tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1,(tracksScreen||monthly==true)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'),0,recurring==1?1:0,monthly?true:false,selectedTrack,addTime=='Add Time'?null:time.toString(),section==undefined?undefined:section],
       (txtObj,resultSet)=> {    
-        existingTasks.push({ id: uuid.v4(), task: data.task, year:tracksScreen?undefined:!showDatePicker?pageDate.getFullYear():moment(date).format('YYYY'), month:tracksScreen?undefined:!showDatePicker?pageDate.getMonth():parseInt(moment(date).format('MM'))-1, day:(tracksScreen||monthly==true)?undefined:!showDatePicker?pageDate.getDate():moment(date).format('DD'), taskState:0, recurring:recurring==1?1:0, monthly:monthly?true:false, track:selectedTrack, time:addTime=='Add Time'?null:time.toString(), section});
+        existingTasks.push({ id: uuid.v4(), task: data.task, year:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'), month:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1, day:(tracksScreen||monthly==true)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'), taskState:0, recurring:recurring==1?1:0, monthly:monthly?true:false, track:selectedTrack, time:addTime=='Add Time'?null:time.toString(), section});
         setTasks(existingTasks);
       },
-      (txtObj, error) => console.warn('Error inserting data:', error)
+      (txtObj, error) => console.log('Error inserting data:', error)
       );
     });
     setRecurring(0);
     setTime(new Date());
     setAddTime('Add Time');
+    setAddDeadline('Add deadline');
     setDate(pageDate);  
     setDateDisplay('none');
     setTimeDisplay('none');
@@ -98,6 +98,7 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
         setRecurring(0);
         setTime(new Date());
         setAddTime('Add Time');
+        setAddDeadline('Add deadline');
         setDate(pageDate);  
         setDateDisplay('none');
         setTimeDisplay('none');
@@ -112,6 +113,7 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
         setRecurring(0);
         setTime(new Date());
         setAddTime('Add Time');
+        setAddDeadline('Add deadline');
         setDate(pageDate);  
         setDateDisplay('none');
         setTimeDisplay('none');
@@ -151,7 +153,7 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
               }}
               />
               <View style={{flexDirection:'row', justifyContent:'flex-end',width:80}}>
-                <Pressable style={{marginRight:5, display: (recurring==1 || monthly)? 'none': track==undefined ? "flex" : "none"}} onPress={() => setDateDisplay(dateDisplay==='none'? 'flex' : 'none')}>
+                <Pressable style={{marginRight:5, display: (recurring==1 || monthly)? 'none': track==undefined ? "flex" : "none"}} onPress={() => (setDateDisplay(dateDisplay==='none'? 'flex' : 'none'), setAddDeadline(addDeadline==='Add Deadline'? 'Cancel Deadline' : 'Add Deadline'))}>
                   <AntDesign name='calendar' size={20}/>
                 </Pressable>
                 <View style={{display: dateDisplay,position:'absolute',top:-420}}>

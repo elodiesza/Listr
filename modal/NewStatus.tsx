@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Dimensions, TouchableWithoutFeedback,TouchableOpacity, StyleSheet, TextInput, Pressable, Text, View, FlatList } from 'react-native';
+import { Dimensions, TouchableWithoutFeedback,TouchableOpacity, TextInput, Pressable, Text, View, FlatList } from 'react-native';
 import { useForm, Controller, set } from 'react-hook-form';
 import { container,colors } from '../styles';
-import { MaterialIcons, Feather } from '@expo/vector-icons';
-import Color from '../components/Color';
+import { Feather } from '@expo/vector-icons';
 import ColorPicker from '../components/ColorPicker';
 import uuid from 'react-native-uuid';
 import { SelectList } from 'react-native-dropdown-select-list';

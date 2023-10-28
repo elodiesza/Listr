@@ -14,9 +14,6 @@
     "categories": {
       "auth": {
         "listr0d8bb79b": {}
-      },
-      "api": {
-        "listr": {}
       }
     }
   }

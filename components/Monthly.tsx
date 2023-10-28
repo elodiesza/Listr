@@ -1,4 +1,4 @@
-import { SafeAreaView,TouchableOpacity, Pressable, ScrollView, FlatList, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { TouchableOpacity, Pressable, FlatList, StyleSheet, Text, View, Dimensions } from 'react-native';
 import Swiper from 'react-native-swiper'
 import MonthlyTasks from './MonthlyTasks';
 import { container, colors } from '../styles';

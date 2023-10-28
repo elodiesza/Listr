@@ -1,14 +1,13 @@
-import {Amplify, API} from 'aws-amplify';
+//import {Amplify} from 'aws-amplify';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Auth } from 'aws-amplify';
-//import useCachedResources from './hooks/useCachedResources';
+//import { Auth } from 'aws-amplify';
 import Navigation from './navigation';
-import awsconfig from './aws-exports';
-import { withAuthenticator } from 'aws-amplify-react-native';
+//import awsconfig from './aws-exports';
+//import { withAuthenticator } from 'aws-amplify-react-native';
 
 
-Amplify.configure({...awsconfig, Analytics : {disabled : true}});
+//Amplify.configure({...awsconfig, Analytics : {disabled : true}});
 
 function App() {
   
@@ -48,5 +47,5 @@ const signUpConfig = {
     },
   ]
 };
-
-export default withAuthenticator(App, {signUpConfig});
+export default App;
+//export default withAuthenticator(App, {signUpConfig});

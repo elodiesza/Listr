@@ -1,4 +1,4 @@
-import { FlatList, Keyboard,Animated, Easing, TextInput, Button, TouchableOpacity, Pressable, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { Keyboard,Animated, Easing, TextInput, TouchableOpacity, Pressable, Text, View, Dimensions } from 'react-native';
 import { useState,useEffect } from 'react';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { Feather } from '@expo/vector-icons';
@@ -59,16 +59,11 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
   }, []);
 
   const today = new Date();
-  const thisYear = today.getFullYear();
-  const thisMonth = today.getMonth();
   const thisDay = today.getDate();
   const [isLoading, setIsLoading] = useState(true);
   const [mlogs, setMLogs] = useState([]);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const {control, handleSubmit, reset} = useForm();
-  const [value, setValue] = useState('');
-
-  console.warn(tasks)
 
   useEffect(() => {
     db.transaction(tx => {

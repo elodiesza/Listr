@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Platform, Dimensions, Alert, TouchableWithoutFeedback,TouchableOpacity, StyleSheet, TextInput, Pressable, Text, View, FlatList } from 'react-native';
-import { useForm, Controller, set } from 'react-hook-form';
+import { useState } from 'react';
+import { Dimensions, TouchableWithoutFeedback,TouchableOpacity, TextInput, Pressable, Text, View, } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
 import { container,colors } from '../styles';
 import uuid from 'react-native-uuid';
 import Modal from 'react-native-modal';
