@@ -11,7 +11,7 @@ import { useForm, Controller, set } from 'react-hook-form';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, month, tasks, setTasks}) {
+export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, month, tasks, setTasks, mlogs, setmLogs}) {
   
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const openKeyboardAnimationValue = new Animated.Value(0);
@@ -61,23 +61,8 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
   const today = new Date();
   const thisDay = today.getDate();
   const [isLoading, setIsLoading] = useState(true);
-  const [mlogs, setMLogs] = useState([]);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const {control, handleSubmit, reset} = useForm();
-
-  useEffect(() => {
-    db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS mlogs (id TEXT PRIMARY KEY, year INTEGER, month INTEGER, UNIQUE(year,month))')
-    });
-
-    db.transaction(tx => {
-      tx.executeSql('SELECT * FROM mlogs', null,
-      (txObj, resultSet) => setMLogs(resultSet.rows._array),
-      (txObj, error) => console.log('error selecting mlogs')
-      );
-    });
-    setIsLoading(false);
-  },[]);
 
   
   useEffect(() => {
@@ -90,7 +75,7 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
           tx.executeSql('INSERT INTO mlogs (id,year,month) values (?,?,?)',[uuid.v4(),year,month],
             (txtObj,resultSet)=> {    
               existingLogs.push({ id: uuid.v4(), year:year, month:month});
-              setMLogs(existingLogs);                      
+              setmLogs(existingLogs);                      
             },
           );
         });
@@ -129,13 +114,14 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
             tx.executeSql('INSERT INTO mlogs (id,year,month) values (?,?,?)',[uuid.v4(),year,month],
               (txtObj,resultSet)=> {    
                 existingLogs.push({ id: uuid.v4(), year:year, month:month});
-                setMLogs(existingLogs);
+                setmLogs(existingLogs);
               },
             );
           });
       }
     }
-  },[isLoading, mlogs]);
+    setIsLoading(false);
+  },[]);
 
   
   const TransferDaily = (id) => {

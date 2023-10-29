@@ -6,7 +6,7 @@ import { container } from '../styles';
 import { Feather } from '@expo/vector-icons';
 import background from '../assets/images/design/background.jpg';
 
-const MonthlyTab = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sections, settings}) => {
+const MonthlyTab = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sections, settings, mlogs, setmLogs}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   var today = new Date();
@@ -91,6 +91,7 @@ const MonthlyTab = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sectio
       <Monthly year={year} month={month} day={day} 
       tasks={tasks} tracks={tracks} setTracks={setTracks} 
       load={load} loadx={loadx} db={db} setTasks={setTasks} 
+      mlogs={mlogs} setmLogs={setmLogs}
       />
     </SafeAreaView>
     </ImageBackground>

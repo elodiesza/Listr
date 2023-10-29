@@ -10,9 +10,8 @@ import { useForm, Controller, set } from 'react-hook-form';
 
 const height = Dimensions.get('window').height;
 
-function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, sections}) {
+function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, sections, logs, setLogs}) {
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoading2, setIsLoading2] = useState(true);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const openKeyboardAnimationValue = new Animated.Value(0);
   const closeKeyboardAnimationValue = new Animated.Value(1);
@@ -64,23 +63,9 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
   const day = today.getDate();
 
   const {control, handleSubmit, reset} = useForm();
-  const [logs, setLogs] = useState([]);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState('DAILY');
 
-  useEffect(() => {
-      db.transaction(tx => {
-        tx.executeSql('CREATE TABLE IF NOT EXISTS logs (id TEXT PRIMARY KEY, year INTEGER, month INTEGER, day INTEGER, UNIQUE(year,month,day))')
-      });
-  
-      db.transaction(tx => {
-        tx.executeSql('SELECT * FROM logs', null,
-        (txObj, resultSet) => setLogs(resultSet.rows._array),
-        (txObj, error) => console.log('error selecting logs')
-        );
-      });
-      setIsLoading(false);
-    },[]);
 
     useEffect(() => {
       if (!isLoading && tasks.length > 0 && logs.filter(c=>(c.year==year && c.month==month && c.day==day))[0]==undefined) {
@@ -139,7 +124,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
           }
         }
       }
-      setIsLoading2(false);
+      setIsLoading(false);
     },[]);
 
     if (isLoading) {

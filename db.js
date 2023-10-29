@@ -13,6 +13,7 @@ const useDatabase = () => {
   const [statuslist, setStatuslist] = useState([]);
   const [statusrecords, setStatusrecords] = useState([]);
   const [logs, setLogs] = useState([]);
+  const [mlogs, setmLogs] = useState([]);
   const [settings, setSettings] = useState([]);
 
 
@@ -86,6 +87,15 @@ const useDatabase = () => {
       (txObj, error) => console.log('error selecting logs')
       );
     });
+    db.transaction(tx => {
+      tx.executeSql('CREATE TABLE IF NOT EXISTS mlogs (id TEXT PRIMARY KEY, year INTEGER, month INTEGER, day INTEGER, UNIQUE(year,month,day))')
+    });
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM mlogs', null,
+      (txObj, resultSet) => setmLogs(resultSet.rows._array),
+      (txObj, error) => console.log('error selecting mlogs')
+      );
+    });
 
     db.transaction(tx => {
       tx.executeSql('CREATE TABLE IF NOT EXISTS settings (id TEXT PRIMARY KEY, highlight TEXT, postpone BOOLEAN, started BOOLEAN, notifications BOOLEAN, expirytime INTEGER, weekstart BOOLEAN)')
@@ -112,6 +122,7 @@ const useDatabase = () => {
     statuslist,
     statusrecords,
     logs,
+    mlogs,
     settings,
     loadx,
     setTasks,
@@ -123,6 +134,7 @@ const useDatabase = () => {
     setStatuslist,
     setStatusrecords,
     setLogs,
+    setmLogs,
     setSettings,
   };
 };

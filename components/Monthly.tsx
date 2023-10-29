@@ -4,10 +4,11 @@ import MonthlyTasks from './MonthlyTasks';
 import { container, colors } from '../styles';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AnalyticsHome from '../screens/Analytics/AnalyticsHome';
 
 const width = Dimensions.get('window').width;
 
-export default function Monthly({year, month, tasks, tracks, setTracks, load, loadx, db, setTasks}) {
+export default function Monthly({year, month, tasks, tracks, setTracks, load, loadx, db, setTasks, mlogs, setmLogs}) {
   const insets = useSafeAreaInsets();
   const height = Dimensions.get('window').height - insets.top - insets.bottom; 
 
@@ -143,7 +144,7 @@ export default function Monthly({year, month, tasks, tracks, setTracks, load, lo
   return (
     <View style={container.body}>
         <Swiper horizontal={false} showsButtons={false} showsPagination={false} loop={false} index={0}>
-          <MonthlyTasks db={db} load={load} loadx={loadx} tracks={tracks} setTracks={setTracks} year={year} month={month} tasks={tasks} setTasks={setTasks}/>
+          <MonthlyTasks db={db} load={load} loadx={loadx} tracks={tracks} setTracks={setTracks} year={year} month={month} tasks={tasks} setTasks={setTasks} mlogs={mlogs} setmLogs={setmLogs}/>
           <View style={{flex:1, justifyContent:'flex-start',width:'100%',paddingBottom:60}}>
             <View style={{height:30}}>
               <FlatList
@@ -166,6 +167,7 @@ export default function Monthly({year, month, tasks, tracks, setTracks, load, lo
               contentContainerStyle={{flex:1,backgroundColor:'blue'}}
             />
           </View>
+          <AnalyticsHome db={db} tracks={tracks} year={year} month={month} tasks={tasks}/>
         </Swiper>
     </View>
   );

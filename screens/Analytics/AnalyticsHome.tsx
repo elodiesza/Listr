@@ -11,7 +11,7 @@ import {StackedBarChart, LineChart, PieChart} from 'react-native-chart-kit';
 
 const width = Dimensions.get('window').width;
 
-function AnalyticsHome({db, tasks, statusrecords, tracks, year, month}) {
+function AnalyticsHome({db, tasks, tracks, year, month}) {
     
 
 
