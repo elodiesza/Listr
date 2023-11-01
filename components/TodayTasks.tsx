@@ -12,7 +12,7 @@ const height = Dimensions.get('window').height;
 
 function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, sections, logs, setLogs}) {
   const [isLoading, setIsLoading] = useState(true);
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(true);
   const openKeyboardAnimationValue = new Animated.Value(0);
   const closeKeyboardAnimationValue = new Animated.Value(1);
   
@@ -62,77 +62,94 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
   const year = today.getFullYear();
   const day = today.getDate();
 
+
   const {control, handleSubmit, reset} = useForm();
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState('DAILY');
+  const [logsLoading, setLogsLoading] = useState(true);
+  
+  useEffect (()=>{
+    setLogsLoading(false)
+    console.warn(logs);
+  },[logs])
 
-
-    useEffect(() => {
-      if (!isLoading && tasks.length > 0 && logs.filter(c=>(c.year==year && c.month==month && c.day==day))[0]==undefined) {
-        if(logs.length > 0){
-          let existingLogs = [...logs]; 
-          let lastLogIndex = logs.length-1;
-          let lastLog = logs[lastLogIndex]; 
-            db.transaction(tx => {
-              tx.executeSql('INSERT INTO logs (id,year,month,day) values (?,?,?,?)',[ uuid.v4(),year,month,day],
-                (txtObj,resultSet)=> {    
-                  existingLogs.push({ id: uuid.v4(), year:year, month:month, day:day});
-                  setLogs(existingLogs);                      
-                },
+  useEffect (() => {
+    if (logsLoading==false){
+    if (logs.filter(c=>(c.year==today.getFullYear() && c.month==today.getMonth() && c.day==today.getDate())).length==0) {
+      if(logs.length==0) {
+        console.warn('enters empty logs');
+      db.transaction((tx) => {
+        tx.executeSql('INSERT INTO logs (id,year,month,day) values (?,?,?,?)',
+        [uuid.v4(),year,month,day],
+        (txtObj,resultSet)=> {    
+          setLogs([...logs,{ id: uuid.v4(), year: year, month: month, day: day}]);
+        },
+        (txtObj, error) => console.warn('Error inserting data:', error)
+        );
+      });
+      setLogs([...logs,{ id: uuid.v4(), year: year, month: month, day: day}]);
+      setIsLoading(false);
+      }
+      else {
+        console.warn('enters non-empty logs');
+        console.warn(logs);
+        let lastyear = logs[logs.length-1].year;
+        let lastmonth = logs[logs.length-1].month;  
+        let lastday = logs[logs.length-1].day;
+        let lastdate = new Date(lastyear,lastmonth,lastday);
+        let dategap = Math.floor((today-lastdate)/(1000*60*60*24));
+        let nbRecurringtasks = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.day==lastday && c.recurring==1 && c.monthly==false)).length;
+        console.warn('last date : ', lastyear, lastmonth, lastday, ' date gap : ' ,dategap, 'nb recurring : ' ,nbRecurringtasks);        
+        let existingTasks= [...tasks];
+        for (var i=0;i<nbRecurringtasks;i++) {
+          let tasktocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.day==lastday && c.recurring==1 && c.monthly==false))[i].task;
+          let tracktocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.day==lastday && c.recurring==1 && c.monthly==false))[i].track;
+          let timetocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.day==lastday && c.recurring==1 && c.monthly==false))[i].time;
+          for (var j=1;j<dategap+1;j++) {
+            let newyear = new Date(lastyear,lastmonth,lastday+j).getFullYear();
+            let newmonth = new Date(lastyear,lastmonth,lastday+j).getMonth();
+            let newday = new Date(lastyear,lastmonth,lastday+j).getDate();
+            console.warn('new log : ' , newyear, newmonth, newday)
+            
+            db.transaction((tx) => {
+              tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
+              [uuid.v4(),tasktocopy,newyear,newmonth,newday,0,1,false,tracktocopy,timetocopy,undefined],
+              (txtObj,resultSet)=> {    
+                existingTasks.push({ id: uuid.v4(), task: tasktocopy, year:newyear, month:newmonth, day:newday, taskState:0, recurring:1, 
+                  monthly:false, track:tracktocopy, time:timetocopy, section: undefined});
+              },
+              (txtObj, error) => console.warn('Error inserting data:', error)
               );
             });
-
-            let existingTasks=[...tasks];
-
-            let existingRecurringTasks=(existingTasks.length==0)? '':existingTasks.filter(c=>(c.recurring==1 && c.monthly==false && c.year==lastLog.year && c.month==lastLog.month && c.day==lastLog.day));
-            existingLogs=[];
-
-            if (lastLog!==undefined) {
-              var daysBetweenLastAndToday = Math.floor((today.getTime() - new Date(lastLog.year,lastLog.month,lastLog.day).getTime())/(1000*60*60*24));
-              for(var j=1;j<daysBetweenLastAndToday+1;j++){
-                var newDate= new Date(new Date(lastLog.year,lastLog.month,lastLog.day).getTime()+j*1000*60*60*24);
-                for (var i=0; i<existingRecurringTasks.length;i++){    
-                  let newTask=existingRecurringTasks[i].task;
-                  let copytrack=existingRecurringTasks[i].track;
-                  let copyTime=existingRecurringTasks[i].time;
-                  db.transaction(tx => {
-                    tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,monthly,track,time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
-                    [ uuid.v4(),newTask,newDate.getFullYear(),newDate.getMonth(),newDate.getDate(),0,1,false,copytrack,copyTime,undefined],
-                      (txtObj,resultSet)=> {   
-                        existingTasks.push({ id: uuid.v4(), task: newTask, year:newDate.getFullYear(), month:newDate.getMonth(), day:newDate.getDate(), taskState:0, recurring:1, monthly:false, track:copytrack, time:copyTime, section: undefined});
-                        setTasks(existingTasks);
-                      },
-                    );
-                  });
-                }
-              }
-              setTasks(existingTasks);
-            }
-        }
-        else {
-          let existingLogs = [...logs];  
-          if(existingLogs.filter(c=>(c.year==year && c.month==month && c.day==day))[0]==undefined && isLoading==false){
-            db.transaction(tx => {
-              tx.executeSql('INSERT INTO logs (id,year,month,day) values (?,?,?,?)',
-              [ uuid.v4(),year,month,day],
-                (txtObj,resultSet)=> {    
-                  existingLogs.push({ id: uuid.v4(), year:year, month:month, day:day});
-                  setLogs(existingLogs);
-                },
-              );
-            });
+            
           }
         }
+        setTasks(existingTasks);
+        db.transaction((tx) => {
+          tx.executeSql('INSERT INTO logs (id,year,month,day) values (?,?,?,?)',
+          [uuid.v4(),year,month,day],
+          (txtObj,resultSet)=> {    
+            setLogs([...logs,{ id: uuid.v4(), year: year, month: month, day: day}]);
+          },
+          (txtObj, error) => console.warn('Error inserting data:', error)
+          );
+        });
+        setLogs([...logs,{ id: uuid.v4(), year: year, month: month, day: day}]);
+        setIsLoading(false);
       }
+    }
+    else {
       setIsLoading(false);
-    },[]);
-
-    if (isLoading) {
-      return (
-        <View>
-          <Text> Is Loading...</Text>
-        </View>
-      )
+    }
+    }
+  },[logs]);
+    
+  if (isLoading) {
+    return (
+      <View>
+        <Text> Is Loading...</Text>
+      </View>
+    )
   }
 
 
@@ -185,7 +202,6 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
 };
 
   return (
-
       <View style={container.body}>
         <View style={container.block}>
           <View style={{zIndex:1, bottom:-1,flexDirection:'row'}}>
@@ -223,6 +239,8 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
               }
             ]}
           >
+            <View style={{flex:1}}>
+          {isLoading==false && logs.filter(c=>(c.year==year && c.month==month && c.day==day))[0]!==undefined &&  (
             <SwipeListView 
               data={selectedTab=='all'? dailyData : selectedTab=='DAILY'? dailyData.filter(c=>(c.track==undefined || c.track=='DAILY' || c.track=='UNLISTED')) : dailyData.filter(c=>(c.track==selectedTab))} 
               scrollEnabled={true} 
@@ -237,7 +255,8 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
               disableRightSwipe={true}
               closeOnRowBeginSwipe={true}
               contentContainerStyle={{marginTop:1}}
-              />
+              /> )}
+              </View>
             <View style={{width:'100%',flexDirection:'row', height:40, paddingLeft:15, alignItems:'center', borderTopWidth:1,borderTopColor:colors.primary.gray}}>
               <Controller
                 control= {control}
@@ -273,7 +292,6 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
               </Pressable>
             </View>
           </Animated.View>
-
         </View>
         <TouchableOpacity onPress={() => setAddModalVisible(true)} style={{justifyContent: 'center', position: 'absolute', bottom:55, right: 15, flex: 1}}>
           <Feather name='plus-circle' size={40} color={colors.primary.purple} />
@@ -290,10 +308,8 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
         pageDate={date}
         tracksScreen={false}
         monthly={false}
-      />
-      </View>
-      
-
+        />
+    </View>
   );
 }
 export default TodayTasks;

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Dimensions,TouchableWithoutFeedback,TouchableOpacity, TextInput, Pressable, Text, View } from 'react-native';
 import { useForm, Controller, set } from 'react-hook-form';
 import { container,colors } from '../styles';
-import { MaterialIcons, Feather } from '@expo/vector-icons';
+import { MaterialIcons, Feather, Ionicons } from '@expo/vector-icons';
 import ColorPicker from '../components/ColorPicker';
 import uuid from 'react-native-uuid';
 import Modal from 'react-native-modal';
@@ -106,8 +106,8 @@ function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, s
                   }}
                   />
                   <Pressable style={[container.color,{backgroundColor:picked}]} onPress={()=>setColorPickerVisible(true)} />
-                  <Pressable onPress={handleSubmit(addTrack)} style={{justifyContent:'center',height:40, width:20, alignItems:'center',marginRight:5}}>
-                    <Feather name='plus-circle' color={colors.primary.purple} size={20}/>
+                  <Pressable onPress={handleSubmit(addTrack)} style={{backgroundColor: colors.primary.purple, justifyContent:'center',height:40, width:40, alignItems:'center'}}>
+                    <Ionicons name='send' size={18} color={colors.primary.white}/>
                   </Pressable>
                 </View>
               <ColorPicker colorPickerVisible={colorPickerVisible} setColorPickerVisible={setColorPickerVisible} picked={picked} setPicked={setPicked} />

@@ -64,65 +64,73 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
   const [addModalVisible, setAddModalVisible] = useState(false);
   const {control, handleSubmit, reset} = useForm();
 
+  function monthDiff(d1, d2) {
+    var months;
+    months = (d2.getFullYear() - d1.getFullYear()) * 12;
+    months -= d1.getMonth();
+    months += d2.getMonth();
+    return months <= 0 ? 0 : months;
+}
+
   
-  useEffect(() => {
-    if (!isLoading && tasks.filter(c=>c.monthly==true).length > 0 && mlogs.filter(c=>(c.year==year && c.month==month))[0]==undefined) {
-      if(mlogs.length > 0){
-      let existingLogs = [...mlogs];  
-      let lastLogIndex = mlogs.length-1;
-      let lastLog = mlogs[lastLogIndex];
-        db.transaction(tx => {
-          tx.executeSql('INSERT INTO mlogs (id,year,month) values (?,?,?)',[uuid.v4(),year,month],
-            (txtObj,resultSet)=> {    
-              existingLogs.push({ id: uuid.v4(), year:year, month:month});
-              setmLogs(existingLogs);                      
-            },
-          );
-        });
-
-        let existingTasks=[...tasks.filter(c=>c.monthly==true)];
-
-        let existingRecurringTasks=(existingTasks.length==0)? '':existingTasks.filter(c=>(c.recurring==1 && c.year==lastLog.year && c.month==lastLog.month));
-        existingLogs=[];
-
-        if (lastLog!==undefined) {
-
-          var monthsBetweenLastAndToday = (year-lastLog.year)*12+(month-lastLog.month);
-          for(var j=0;j<monthsBetweenLastAndToday;j++){
-            var newDate=new Date(lastLog.year,lastLog.month+j,1);
-            for (var i=0; i<existingRecurringTasks.length;i++){    
-              let newTask=existingRecurringTasks[i].task;
-              let copytrack=existingRecurringTasks[i].track;
-              let copyTime=existingRecurringTasks[i].time;
-              db.transaction(tx => {
-                tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,monthly,track,time,section) values (?,?,?,?,?,?,?,?,?,?,?)',
-                [uuid.v4(),newTask,newDate.getFullYear(),newDate.getMonth(),null,0,1,true,copytrack,copyTime, undefined],
-                  (txtObj,resultSet)=> {   
-                    existingTasks.push({ id: uuid.v4(), task: newTask, year:newDate.getFullYear(), month:newDate.getMonth(), day:null, taskState:0, recurring:1, monthly: true, track:copytrack, time:copyTime, section:undefined});
-                    setTasks(existingTasks);
-                  },
-                );
-              });
-            }
-          }
-          setTasks(existingTasks);
-        }
+  useEffect (() => {
+    let thismonthlogExists = mlogs.some((log) => (log.year==year&& log.month==month));
+    let firslaunch = mlogs.length==0 && tasks.length==0;
+    if (!thismonthlogExists&&!firslaunch) {
+      if(mlogs.length==0) {
+      db.transaction((tx) => {
+        tx.executeSql('INSERT INTO mlogs (id,year,month) values (?,?,?)',
+        [uuid.v4(),year,month],
+        (txtObj,resultSet)=> {    
+          setmLogs([...mlogs,{ id: uuid.v4(), year: year, month: month}]);
+        },
+        (txtObj, error) => console.warn('Error inserting data:', error)
+        );
+      });
+      setmLogs([...mlogs,{ id: uuid.v4(), year: year, month: month}]);
       }
       else {
-        let existingLogs = [...mlogs];  
-          db.transaction(tx => {
-            tx.executeSql('INSERT INTO mlogs (id,year,month) values (?,?,?)',[uuid.v4(),year,month],
+        let lastyear = mlogs[mlogs.length-1].year;
+        let lastmonth = mlogs[mlogs.length-1].month;  
+        let lastdate = new Date(lastyear,lastmonth,1);
+        let dategap = monthDiff(lastdate,new Date(year,month,1));
+        let nbRecurringtasks = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.recurring==1 && c.monthly==true)).length;
+        for (var i=0;i<nbRecurringtasks;i++) {
+          let tasktocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.recurring==1 && c.monthly==true))[i].task;
+          let tracktocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.recurring==1 && c.monthly==true))[i].track;
+          let timetocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.recurring==1 && c.monthly==true))[i].time;
+          for (var j=1;j<dategap+1;j++) {
+            let newyear = new Date(lastyear,lastmonth+j).getFullYear();
+            let newmonth = new Date(lastyear,lastmonth+j).getMonth();
+            let existingTasks = [...tasks];
+            db.transaction((tx) => {
+              tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
+              [uuid.v4(),tasktocopy,newyear,newmonth,undefined,0,1,true,tracktocopy,timetocopy,undefined],
               (txtObj,resultSet)=> {    
-                existingLogs.push({ id: uuid.v4(), year:year, month:month});
-                setmLogs(existingLogs);
+                existingTasks.push({ id: uuid.v4(), task: tasktocopy, year:newyear, month:newmonth, day:undefined, taskState:0, recurring:1, 
+                  monthly:true, track:tracktocopy, time:timetocopy, section: undefined});
               },
-            );
-          });
+              (txtObj, error) => console.warn('Error inserting data:', error)
+              );
+            });
+            setTasks(existingTasks);
+          }
+        }
+        setIsLoading(false);
       }
     }
-    setIsLoading(false);
-  },[]);
-
+    else {
+      setIsLoading(false);
+    }
+  },[mlogs]);
+    
+  if (isLoading) {
+    return (
+      <View>
+        <Text> Is Loading...</Text>
+      </View>
+    )
+  }
   
   const TransferDaily = (id) => {
     let existingTasks = [...tasks];

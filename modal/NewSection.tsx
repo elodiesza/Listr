@@ -4,7 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { container,colors } from '../styles';
 import uuid from 'react-native-uuid';
 import Modal from 'react-native-modal';
-import { Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 const width = Dimensions.get('window').width;
 
@@ -83,8 +83,8 @@ function NewSection({db, sections, setSections, track, newSectionVisible, setNew
                     }
                 }}
                 />
-                <Pressable onPress={handleSubmit(addSection)} style={{justifyContent:'center',height:40, flex:1, alignItems:'center'}}>
-                  <Feather name='plus-circle' size={20} color={colors.primary.purple}/>
+                <Pressable onPress={handleSubmit(addSection)} style={{backgroundColor:colors.primary.purple,justifyContent:'center',height:40, flex:1, alignItems:'center'}}>
+                  <Ionicons name='send' size={18} color={colors.primary.white}/>
                 </Pressable>
             </View>  
         </TouchableWithoutFeedback>

@@ -1,5 +1,5 @@
 import { ImageBackground, Dimensions, Text, View, SafeAreaView, Pressable } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TodayTasks from '../components/TodayTasks';
 import { container,colors } from '../styles';
 import { Feather } from '@expo/vector-icons';
@@ -16,11 +16,12 @@ const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
 
   const [isLoading, setIsLoading] = useState(false);
   const [date, setDate] = useState(today);
+  const [showLauncherScreen, setShowLauncherScreen] = useState(false);
+
 
   const NextDay = () => {
     setDate(new Date(date.setDate(date.getDate()+1)));
   };
-
   const PreviousDay = () => {
     setDate(new Date(date.setDate(date.getDate()-1)));
   };
@@ -36,13 +37,13 @@ const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
   return (
 
       <ImageBackground source={background} resizeMode="cover" style={container.container}>
-        <View style={{display: logs.length==0?'flex':'none',position:'absolute',width:width, height:height, zIndex:2}}>
+        <Pressable onPress={()=>setShowLauncherScreen(false)} style={{display: (showLauncherScreen)?'flex':'none',position:'absolute',width:width, height:height, zIndex:2}}>
           <View style={{width:width, height:height, backgroundColor:colors.primary.black, opacity: 0.5}}/>
           <View style={{position:'absolute',width:width, height:height, alignItems:'center', top:height-180}}>
             <Text style={{fontSize:30, color:colors.primary.white}}> Create your first task </Text>
             <Feather name='arrow-down' size={30} color={colors.primary.white}/>
           </View>
-        </View>
+        </Pressable>
         <SafeAreaView style={container.container}>
           <View style={container.header}>
             <Pressable onPress={PreviousDay}>

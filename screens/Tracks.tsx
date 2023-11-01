@@ -1,6 +1,6 @@
 import { ImageBackground, View, Text, TouchableOpacity, Dimensions, Pressable, SafeAreaView, FlatList } from 'react-native';
 import { colors, container, paleColor } from '../styles';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Feather, MaterialIcons, Entypo, Ionicons} from '@expo/vector-icons';
 import NewSection from '../modal/NewSection';
 import NewTask from '../modal/NewTask';
@@ -57,6 +57,17 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
         });
     };
 
+    const openRowRef = useRef(null);
+    const onRowDidOpen = (rowKey,rowMap) => {  
+        openRowRef.current = rowMap[rowKey];
+    };
+    const closeOpenRow = () => {
+        if (openRowRef.current && openRowRef.current.closeRow) {
+            openRowRef.current.closeRow();
+            openRowRef.current = null;
+        }
+    };
+
     useEffect(() => {
         setArrow(arrowArray());
         setSelectedTabColor(selectedTab==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTab).map(c=>c.color)[0]);
@@ -100,13 +111,13 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
     const TaskSwipeItem = ({ id }) => (
         <View style={{ flex: 1, backgroundColor: 'green', flexDirection: 'row' }}>
             <View style={{ width: 0.9*width -50, paddingRight: 12, justifyContent: 'center', alignItems: 'flex-end', backgroundColor: colors.primary.yellowgreen }}>
-                <Pressable onPress={()=>TransferDaily(id)}>
+                <Pressable onPress={()=>{TransferDaily(id); closeOpenRow()}}>
                     <Feather name="calendar" size={25} color={'white'} />
                 </Pressable>
             </View>
             <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, backgroundColor: 'darkred' }}>
                 <Pressable onPress={() => 
-                db.transaction(tx => {
+                {{db.transaction(tx => {
                 tx.executeSql('DELETE FROM tasks WHERE id = ?', [id],
                     (txObj, resultSet) => {
                     if (resultSet.rowsAffected > 0) {
@@ -116,7 +127,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                     },
                     (txObj, error) => console.log(error)
                 );
-                })}>
+                })}; closeOpenRow()}}>
                     <Feather name="trash-2" size={25} color={'white'} />
                 </Pressable>
             </View>
@@ -245,6 +256,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                         rightOpenValue={-100}
                                         disableRightSwipe={true}
                                         closeOnRowBeginSwipe={true}
+                                        onRowDidOpen={onRowDidOpen}
                                         keyExtractor= {(item,index) => index.toString()}
                                     />
                                     <SwipeListView

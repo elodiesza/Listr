@@ -5,7 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import uuid from 'react-native-uuid';
 import { container,colors } from '../styles';
-import { AntDesign, Feather, Entypo } from '@expo/vector-icons';
+import { AntDesign, Feather, Entypo, Ionicons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
 import CalendarPicker from 'react-native-calendar-picker';
 
@@ -133,7 +133,7 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
                     onChangeText={onChange}
                     onBlur={onBlur}
                     placeholder="Insert new task"
-                    style={[container.textinput,{width:monthly?width-60:width-80,borderColor: error ? 'red' : '#e8e8e8'}]}
+                    style={[container.textinput,{width:monthly?width-65:width-85,borderColor: error ? 'red' : '#e8e8e8'}]}
                   />
                   {error && (
                     <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
@@ -152,8 +152,8 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
                 },
               }}
               />
-              <View style={{flexDirection:'row', justifyContent:'flex-end',width:80}}>
-                <Pressable style={{marginRight:5, display: (recurring==1 || monthly)? 'none': track==undefined ? "flex" : "none"}} onPress={() => (setDateDisplay(dateDisplay==='none'? 'flex' : 'none'), setAddDeadline(addDeadline==='Add Deadline'? 'Cancel Deadline' : 'Add Deadline'))}>
+              <View style={{flexDirection:'row', justifyContent:'flex-end', alignItems:'center',width:80}}>
+                <Pressable style={{marginHorizontal:5, display: (recurring==1 || monthly)? 'none': track==undefined ? "flex" : "none"}} onPress={() => (setDateDisplay(dateDisplay==='none'? 'flex' : 'none'), setAddDeadline(addDeadline==='Add Deadline'? 'Cancel Deadline' : 'Add Deadline'))}>
                   <AntDesign name='calendar' size={20}/>
                 </Pressable>
                 <View style={{display: dateDisplay,position:'absolute',top:-420}}>
@@ -184,8 +184,8 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
                 <Pressable style={{marginRight:5, display: track==undefined? "flex" : "none"}} onPress={() => setRecurring(recurring==1?0:1)}>
                   <Entypo name='cycle' size={20} color={recurring==1? colors.primary.purple : colors.primary.black}/>
                 </Pressable>
-                <Pressable onPress={handleSubmit(addTask)} style={{marginRight:5}}>
-                  <Feather name='plus-circle' size={20}/>
+                <Pressable onPress={handleSubmit(addTask)} style={{justifyContent:'center', alignItems:'center',height:40, width: 30,padding:5,backgroundColor:colors.primary.purple}}>
+                  <Ionicons name='send' size={18} color={colors.primary.white}/>
                 </Pressable>
               </View>
             </View> 
