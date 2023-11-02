@@ -1,21 +1,19 @@
 import { TextInput, Text, View, Dimensions, Pressable } from 'react-native';
-import { useState } from 'react';
-import { MaterialCommunityIcons, Entypo, Feather } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
+import { MaterialCommunityIcons, Entypo, Feather, Ionicons } from '@expo/vector-icons';
 import moment from 'moment';
 import { container} from '../styles';
 import { colors } from '../styles';
 import uuid from 'react-native-uuid';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, set } from 'react-hook-form';
 
 
 const width = Dimensions.get('window').width;
 
-function Task({db, tasks, setTasks, date,task, taskState, id , time, section, trackScreen, recurring, tabcolor, monthly, year, month, day}) {
+function Task({db, tasks, setTasks, date,task, taskState, id , time, section, trackScreen, recurring, tabcolor, monthly, year, month, day, editIndex, setEditIndex, index}) {
   
   const {control, handleSubmit, reset} = useForm();
-  const [value, setValue] = useState('');
-  const [editOn,setEditOn] = useState(false);
-
+  const [taskInput, setTaskInput] = useState(task);
 
   const today= new Date();
   const updateTaskState = () => {
@@ -118,21 +116,21 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
   };
   const taskTime= time=="null"? "":moment(time).format('HH:mm');
 
-  const editTask = (data) => {
+  const editTask = (data) => { 2
     let existingTasks=[...tasks];
     const indexToUpdate = existingTasks.findIndex(c => c.id === id);
       db.transaction(tx=> {
-        tx.executeSql('UPDATE tasks SET task = ? WHERE id = ?', [data.task, id],
+        tx.executeSql('UPDATE tasks SET task = ? WHERE id = ?', [taskInput, id],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-              existingTasks[indexToUpdate].task = data.task;
+              existingTasks[indexToUpdate].task = taskInput;
               setTasks(existingTasks);
             }
           },
           (txObj, error) => console.log('Error updating task', error)
         );
       });
-      setEditOn(false);
+      setEditIndex(-1);
   };
 
   return (
@@ -143,7 +141,7 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
       <View style={{display:(trackScreen && moment(date).format("YY-MM-DD")==moment(today).format("YY-MM-DD"))?"flex":"none",height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
         <Feather name="calendar" size={20} color={colors.primary.black} />
       </View>
-      <Pressable onPress={()=>setEditOn(true)} style={{flex:6, display: editOn?'none':'flex'}}>
+      <Pressable onPress={()=>setEditIndex(index)} style={{flex:6, display: editIndex==index?'none':'flex'}}>
         <Text style={{marginLeft:5,display:(section==undefined || trackScreen)?"none":"flex",color:tabcolor, fontWeight:'bold'}}>
           {section} >
         </Text>        
@@ -151,50 +149,49 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
           {task}
         </Text>
       </Pressable>
-      <Pressable style={{flex:1, display: editOn?'flex':'none', flexDirection:'row'}}>   
-        <Controller
-              control= {control}
-              name="task"
-              render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
-                <View style={{flexDirection:'column'}}>
-                  <TextInput
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    placeholder={task}
-                    style={{borderColor: error ? 'red' : '#e8e8e8',height:50,flex:1,width:width-100}}
-                  />
-                  {error && (
-                    <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
-                  )}
-                </View>
-              )}
-              rules={{
-                required: 'Input a task',
-                minLength: {
-                  value: 3,
-                  message: 'Task should be at least 3 characters long',
-                },
-                maxLength: {
-                  value: 50,
-                  message: 'Task should be max 50 characters long',
-                },
-              }}
-        />
-        <Pressable onPress={()=>{setEditOn(false);setValue(task)}} style={{flex:1}}>
-          <Feather name="x-circle" size={20} color={colors.primary.purple}/>
+      {editIndex==index &&
+        <Pressable style={{flex:1, flexDirection:'row', alignItems:'center'}}>   
+          <Controller
+                control= {control}
+                name="task"
+                render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
+                  <View style={{flexDirection:'column'}}>
+                    <TextInput
+                      value={taskInput}
+                      onChangeText={(val)=>setTaskInput(val)}
+                      onBlur={onBlur}
+                      placeholder={task}
+                      style={{borderColor: error ? 'red' : '#e8e8e8',height:50,width:width-90}}
+                    />
+                    {error && (
+                      <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
+                    )}
+                  </View>
+                )}
+                rules={{
+                  required: 'Input a task',
+                  minLength: {
+                    value: 3,
+                    message: 'Task should be at least 3 characters long',
+                  },
+                  maxLength: {
+                    value: 50,
+                    message: 'Task should be max 50 characters long',
+                  },
+                }}
+          />
+          <Pressable onPress={editTask} style={{height:40, flex:1, justifyContent:'center', alignItems:'center',backgroundColor:colors.primary.purple}}>
+            <Ionicons name='send' size={20} color={colors.primary.white}/>
+          </Pressable>
         </Pressable>
-        <Pressable onPress={handleSubmit(editTask)} style={{flex:1}}>
-          <Feather name="check-circle" size={20} color={colors.primary.purple}/>
-        </Pressable>
-      </Pressable>
+      }
       <View style={{display:time==undefined?"none":"flex",width:60,height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
           <Text style={{fontSize:10, right:10}}>{time=="Invalid date"?undefined: time==undefined? undefined:taskTime}</Text>
       </View>
       <View style={{display:(monthly && day!==null && day!==undefined)?"flex":"none",width:60,height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
           <Text style={{fontSize:10, right:10}}>{moment(new Date(year,month+1,day)).format("MM/DD")}</Text>
       </View>
-      <Pressable onPress={()=> updateTaskState()} style={{display:editOn?'none':'flex',marginRight:5}}>
+      <Pressable onPress={()=> updateTaskState()} style={{display:editIndex==index?'none':'flex',marginRight:5}}>
         <MaterialCommunityIcons name={taskState===0 ? 'checkbox-blank-outline' : (
           taskState===1 ? 'checkbox-intermediate' : (
           taskState===2 ? 'checkbox-blank' :

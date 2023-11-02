@@ -15,6 +15,12 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(true);
   const openKeyboardAnimationValue = new Animated.Value(0);
   const closeKeyboardAnimationValue = new Animated.Value(1);
+  const [editIndex, setEditIndex] = useState(-1);
+  const handleClickOutside = () => {
+    if (editIndex !== -1) {
+      setEditIndex(-1);
+    }
+  };
   
     const startOpenAnimation = () => {
       Animated.timing(openKeyboardAnimationValue, {
@@ -202,7 +208,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
 };
 
   return (
-      <View style={container.body}>
+      <Pressable style={container.body} onPress={handleClickOutside}>
         <View style={container.block}>
           <View style={{zIndex:1, bottom:-1,flexDirection:'row'}}>
             <View style={{flex:1,flexDirection:'row'}}>
@@ -244,10 +250,11 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
             <SwipeListView 
               data={selectedTab=='all'? dailyData : selectedTab=='DAILY'? dailyData.filter(c=>(c.track==undefined || c.track=='DAILY' || c.track=='UNLISTED')) : dailyData.filter(c=>(c.track==selectedTab))} 
               scrollEnabled={true} 
-              renderItem={({ item }) => 
+              renderItem={({ item,index }) => 
                 <Task db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} setTracks={setTracks} 
                   sections={sections} date={date} task={item.task} taskState={item.taskState} id={item.id} track={item.track} 
-                  time={item.time} section={item.section} trackScreen={false} archive={false} recurring={item.recurring} tabcolor={item.track==undefined? colors.primary.defaultdark:tracks.filter(c=>c.track==item.track).map(c=>c.color)[0]}/>} 
+                  time={item.time} section={item.section} trackScreen={false} archive={false} recurring={item.recurring} tabcolor={item.track==undefined? colors.primary.defaultdark:tracks.filter(c=>c.track==item.track).map(c=>c.color)[0]}
+                  editIndex={editIndex} setEditIndex={setEditIndex} index={index}/>} 
                   renderHiddenItem={({ item }) => <DeleteItem id={item.id} 
                 />} 
               bounces={false} 
@@ -309,7 +316,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
         tracksScreen={false}
         monthly={false}
         />
-    </View>
+    </Pressable>
   );
 }
 export default TodayTasks;
