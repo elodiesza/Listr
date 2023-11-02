@@ -9,7 +9,7 @@ import Modal from 'react-native-modal';
 
 const width = Dimensions.get('window').width;
 
-function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, setSelectedTab, setSelectedTabColor}) {
+function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, setSelectedTrack, setSelectedTrackColor}) {
 
 
   const {control, handleSubmit, reset} = useForm();
@@ -40,8 +40,8 @@ function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, s
               }
             );
         });
-    setSelectedTab(data.name);
-    setSelectedTabColor(picked);
+    setSelectedTrack(data.name);
+    setSelectedTrackColor(picked);
     setPicked('');
     setNewTrackVisible(false);
     reset();

@@ -18,14 +18,14 @@ import background from '../assets/images/design/background.jpg';
 const width = Dimensions.get('window').width;
 
 function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks, 
-    progress, setProgress, statuslist, setStatuslist, statusrecords, setStatusrecords, settings }) {
+    progress, setProgress, statuslist, setStatuslist, statusrecords, setStatusrecords, 
+    settings, selectedTrack, setSelectedTrack }) {
 
     const today= new Date();
     const thisYear = today.getFullYear();
     const thisMonth = today.getMonth();
     const day = today.getDate();
-    const [selectedTab, setSelectedTab] = useState('UNLISTED');
-    const [selectedTabColor, setSelectedTabColor] = useState(selectedTab==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTab).map(c=>c.color)[0]);
+    const [selectedTrackColor, setSelectedTrackColor] = useState(selectedTrack==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTrack).map(c=>c.color)[0]);
     const [newSectionVisible, setNewSectionVisible] = useState(false);
     const [newTrackVisible, setNewTrackVisible] = useState(false);
     const [newTaskVisible, setNewTaskVisible] = useState(false);
@@ -38,7 +38,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
 
     const arrowArray = () => {
         let arrowArray = [];
-        const sectionLength = sections.filter(c=>c.track==selectedTab).length;
+        const sectionLength = sections.filter(c=>c.track==selectedTrack).length;
         for (let i=0; i<sectionLength; i++) {
             arrowArray.push({'index':i, 'arrow':true});
         }
@@ -70,9 +70,9 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
 
     useEffect(() => {
         setArrow(arrowArray());
-        setSelectedTabColor(selectedTab==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTab).map(c=>c.color)[0]);
-        setSelectedSection(sections.filter(c=>c.track==selectedTab).map(c=>c.section)[0]);
-    }, [selectedTab,tracks]);
+        setSelectedTrackColor(selectedTrack==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTrack).map(c=>c.color)[0]);
+        setSelectedSection(sections.filter(c=>c.track==selectedTrack).map(c=>c.section)[0]);
+    }, [selectedTrack,tracks]);
 
     const TransferDaily = (id) => {
         let existingTasks = [...tasks];
@@ -200,7 +200,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
 
     const TabItem = ({item,index, selected}) => {
         return (
-            <Pressable onPress={()=>setSelectedTab(item.track)} style={[container.tab,{zIndex:item.track==selectedTab?1:0,bottom:item.track==selectedTab? -1:0,borderRightWidth:item.track==selectedTab? 0.5:0,borderLeftWidth:item.track==selectedTab? 0.5:0,borderTopWidth:item.track==selectedTab? 0.5:0,backgroundColor:item.color!==""?paleColor(item.color):colors.primary.default}]}>
+            <Pressable onPress={()=>setSelectedTrack(item.track)} style={[container.tab,{zIndex:item.track==selectedTrack?1:0,bottom:item.track==selectedTrack? -1:0,borderRightWidth:item.track==selectedTrack? 0.5:0,borderLeftWidth:item.track==selectedTrack? 0.5:0,borderTopWidth:item.track==selectedTrack? 0.5:0,backgroundColor:item.color!==""?paleColor(item.color):colors.primary.default}]}>
                 <Text style={container.tabtext}>
                     {item.track}
                 </Text>
@@ -222,19 +222,19 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                     <View style={{height:29, zIndex:1, bottom:-1, flexDirection:'row'}}>
                         <FlatList
                             data={[... new Set(tracks),{'id':'unlisted','track':'UNLISTED','color':colors.primary.default}]}
-                            renderItem={({item,index}) =>  <TabItem item={item} index={index} selected={selectedTab==item.track?-0.5:0} />}
+                            renderItem={({item,index}) =>  <TabItem item={item} index={index} selected={selectedTrack==item.track?-0.5:0} />}
                             horizontal={true}
                             keyExtractor= {(item,index) => index.toString()}
                             contentContainerStyle={{flexDirection:'row-reverse'}}
                             showsHorizontalScrollIndicator={false}
                         />
                     </View>
-                    <View style={[container.listblock,{backgroundColor: paleColor(selectedTabColor),}]}>  
+                    <View style={[container.listblock,{backgroundColor: paleColor(selectedTrackColor),}]}>  
                         <FlatList
-                            data={sections.filter(c=>c.track==selectedTab)} 
+                            data={sections.filter(c=>c.track==selectedTrack)} 
                             renderItem={({item,index}) => 
                             <View style={{width:0.9*width}}>
-                                <View style={[container.section,{flexDirection: 'row', justifyContent:'flex-start', alignItems: 'center', backgroundColor: paleColor(selectedTabColor)}]}> 
+                                <View style={[container.section,{flexDirection: 'row', justifyContent:'flex-start', alignItems: 'center', backgroundColor: paleColor(selectedTrackColor)}]}> 
                                     <Text>{item.section}</Text>
                                     <Pressable onPress={()=>updateArrowAtIndex(index,false)} style={{display:arrow.filter(c=>c.index==index).map(c=>c.arrow)[0]==true?"flex":"none",position:'absolute',right:10}}>
                                         <MaterialIcons name="keyboard-arrow-down" size={25}/>
@@ -245,11 +245,11 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                 </View>
                                 <View style={{display: arrow.filter(c=>c.index==index).map(c=>c.arrow)[0]==true?'flex':'none'}}>
                                     <SwipeListView
-                                        data={tasks.filter(c=>(c.section==item.section && c.track==selectedTab && c.taskState!==2 ))}
+                                        data={tasks.filter(c=>(c.section==item.section && c.track==selectedTrack && c.taskState!==2 ))}
                                         renderItem={({item,index}) =>
                                         <Task db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} setTracks={setTracks} 
                                         sections={sections} date={new Date(item.year,item.month,item.day)} section={item.section} task={item.task} 
-                                        taskState={item.taskState} time={undefined} track={selectedTab} id={item.id} trackScreen={true} archive={false} recurring={0} tabcolor={selectedTabColor}/>
+                                        taskState={item.taskState} time={undefined} track={selectedTrack} id={item.id} trackScreen={true} archive={false} recurring={0} tabcolor={selectedTrackColor}/>
                                         }
                                         renderHiddenItem={({ item }) => <TaskSwipeItem id={item.id} />} 
                                         bounces={false} 
@@ -260,9 +260,9 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                         keyExtractor= {(item,index) => index.toString()}
                                     />
                                     <SwipeListView
-                                        data={progress.filter(c=>(c.list==item.section && c.track==selectedTab && c.progress!==100))}
+                                        data={progress.filter(c=>(c.list==item.section && c.track==selectedTrack && c.progress!==100))}
                                         renderItem={({item,index}) =>
-                                        <ProgressBar db={db} name={item.name} progress={progress} setProgress={setProgress} value={item.progress} id={item.id} color={selectedTabColor}/>
+                                        <ProgressBar db={db} name={item.name} progress={progress} setProgress={setProgress} value={item.progress} id={item.id} color={selectedTrackColor}/>
                                         }
                                         renderHiddenItem={({ item }) => <ProgressSwipeItem id={item.id} />} 
                                         bounces={false} 
@@ -272,7 +272,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                         keyExtractor= {(item,index) => index.toString()}
                                     />
                                     <SwipeListView
-                                        data={statusrecords.filter(c=>(c.section==item.section && c.track==selectedTab && c.archive==false))}
+                                        data={statusrecords.filter(c=>(c.section==item.section && c.track==selectedTrack && c.archive==false))}
                                         renderItem={({item,index}) =>
                                         <Status db={db} name={item.name} list={item.list} statuslist={statuslist} statusrecords={statusrecords} setStatusrecords={setStatusrecords} number={item.number} id={item.id}/>
                                         }
@@ -298,9 +298,9 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                         </TouchableOpacity> 
                                     </View>
                                 </View>
-                                <NewTask addModalVisible={newTaskVisible} setAddModalVisible={setNewTaskVisible} db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} track={selectedTab} section={selectedSection} pageDate={undefined} tracksScreen={true} monthly={false}/>
-                                <NewProgress addModalVisible={newProgressVisible} setAddModalVisible={setNewProgressVisible} db={db} progress={progress} setProgress={setProgress} track={selectedTab} section={selectedSection}/>
-                                <NewStatus newStatusVisible={newStatusVisible} setNewStatusVisible={setNewStatusVisible} db={db} statuslist={statuslist} setStatuslist={setStatuslist} statusrecords={statusrecords} setStatusrecords={setStatusrecords} selectedTab={selectedTab} selectedSection={selectedSection}/>
+                                <NewTask addModalVisible={newTaskVisible} setAddModalVisible={setNewTaskVisible} db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} track={selectedTrack} section={selectedSection} pageDate={undefined} tracksScreen={true} monthly={false}/>
+                                <NewProgress addModalVisible={newProgressVisible} setAddModalVisible={setNewProgressVisible} db={db} progress={progress} setProgress={setProgress} track={selectedTrack} section={selectedSection}/>
+                                <NewStatus newStatusVisible={newStatusVisible} setNewStatusVisible={setNewStatusVisible} db={db} statuslist={statuslist} setStatuslist={setStatuslist} statusrecords={statusrecords} setStatusrecords={setStatusrecords} selectedTrack={selectedTrack} selectedSection={selectedSection}/>
                             </View>
                             }
                             keyExtractor= {(item,index) => index.toString()}
@@ -308,10 +308,10 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                             showsHorizontalScrollIndicator={false}
                             bounces={false}
                         />
-                        <NewSection db={db} sections={sections} setSections={setSections} track={selectedTab} newSectionVisible={newSectionVisible} setNewSectionVisible={setNewSectionVisible}/>
-                        <NewTrack db={db} tracks={tracks} setTracks={setTracks} newTrackVisible={newTrackVisible} setNewTrackVisible={setNewTrackVisible} setSelectedTab={setSelectedTab} setSelectedTabColor={setSelectedTabColor}/>
+                        <NewSection db={db} sections={sections} setSections={setSections} track={selectedTrack} newSectionVisible={newSectionVisible} setNewSectionVisible={setNewSectionVisible}/>
+                        <NewTrack db={db} tracks={tracks} setTracks={setTracks} newTrackVisible={newTrackVisible} setNewTrackVisible={setNewTrackVisible} setSelectedTrack={setSelectedTrack} setSelectedTrackColor={setSelectedTrackColor}/>
                         <View style={{width:'100%'}}>
-                            <View style={[container.section,{flexDirection: 'row', justifyContent:'flex-start', alignItems: 'center', borderBottomLeftRadius:20, borderBottomRightRadius:20, backgroundColor: paleColor(selectedTabColor)}]}> 
+                            <View style={[container.section,{flexDirection: 'row', justifyContent:'flex-start', alignItems: 'center', borderBottomLeftRadius:20, borderBottomRightRadius:20, backgroundColor: paleColor(selectedTrackColor)}]}> 
                                 <Text>ARCHIVES</Text>
                                 <Pressable onPress={()=>setShowArchive(true)} style={{display:showArchive==false?"flex":"none",position:'absolute',right:10}}>
                                     <MaterialIcons name="keyboard-arrow-up" size={25}/>
@@ -322,11 +322,11 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                             </View>
                             <View style={{display: showArchive==true?"flex":"none",maxHeight:200,justifyContent:'flex-start'}}>
                                 <SwipeListView
-                                        data={tasks.filter(c=>(c.track==selectedTab && c.taskState==2 ))}
+                                        data={tasks.filter(c=>(c.track==selectedTrack && c.taskState==2 ))}
                                         renderItem={({item,index}) =>
                                         <Task db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} setTracks={setTracks} 
                                         sections={sections} date={undefined} section={item.section} task={item.task} 
-                                        taskState={item.taskState} time={undefined} track={selectedTab} id={item.id} trackScreen={true} archive={true}/>
+                                        taskState={item.taskState} time={undefined} track={selectedTrack} id={item.id} trackScreen={true} archive={true}/>
                                         }
                                         renderHiddenItem={({ item }) => <ArchiveTaskSwipeItem id={item.id} />} 
                                         bounces={false} 
@@ -336,7 +336,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                         keyExtractor= {(item,index) => index.toString()}
                                 />
                                 <SwipeListView
-                                        data={progress.filter(c=>(c.track==selectedTab && c.progress==100))}
+                                        data={progress.filter(c=>(c.track==selectedTrack && c.progress==100))}
                                         renderItem={({item,index}) =>
                                             <View style={{height:40,width:width*0.9,backgroundColor:colors.primary.white,flexDirection:'row'}}>
                                                 <View style={{width:width*0.9-140,justifyContent:'center',paddingLeft:10}}>
@@ -348,8 +348,8 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                                 renderItem={({ item,index }) => 
                                                     <Pressable onPress={()=>{
                                                         let existingprogress = [...progress]; 
-                                                        const id=progress.filter(c=>(c.name==item.name && c.track==selectedTab)).map(c=>c.id)[0];
-                                                        const progressIndex = progress.findIndex(c=>(c.name==item.name && c.track==selectedTab));
+                                                        const id=progress.filter(c=>(c.name==item.name && c.track==selectedTrack)).map(c=>c.id)[0];
+                                                        const progressIndex = progress.findIndex(c=>(c.name==item.name && c.track==selectedTrack));
                                                         db.transaction(tx=> {
                                                             tx.executeSql('UPDATE progress SET rate = ? WHERE id=?', [item.rate,id],
                                                                 (txObj, resultSet) => {
@@ -362,7 +362,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                                             );
                                                         });
                                                     }} style={{justifyContent:'center'}}>
-                                                        <Ionicons name="star" size={25} color={item.rate<=progress.filter(c=>(c.track==selectedTab&&c.name==item.name)).map(c=>c.rate)[0]?selectedTabColor:'transparent'}/>
+                                                        <Ionicons name="star" size={25} color={item.rate<=progress.filter(c=>(c.track==selectedTrack&&c.name==item.name)).map(c=>c.rate)[0]?selectedTrackColor:'transparent'}/>
                                                         <View style={{position:'absolute'}}>
                                                             <Ionicons name="star-outline" size={25} />
                                                         </View>
@@ -381,7 +381,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                         keyExtractor= {(item,index) => index.toString()}
                                 />
                                 <SwipeListView
-                                    data={statusrecords.filter(c=>(c.track==selectedTab && c.archive==true))}
+                                    data={statusrecords.filter(c=>(c.track==selectedTrack && c.archive==true))}
                                     renderItem={({item,index}) =>
                                     <Status db={db} name={item.name} list={item.list} statuslist={statuslist} statusrecords={statusrecords} setStatusrecords={setStatusrecords} number={item.number} id={item.id}/>
                                     }
@@ -395,8 +395,8 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                 
                             </View>
                             <View style={{width:'100%', borderBottomLeftRadius:20, borderBottomRightRadius:20}}>
-                                <View style={{ display: selectedTab==undefined? "none":"flex", width: "100%", height: 35, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                                    <View style={{display: selectedTab=='UNLISTED'?'none':'flex',justifyContent: 'center', alignItems: 'flex-end', marginVertical: 2, marginHorizontal: 2 }}>
+                                <View style={{ display: selectedTrack==undefined? "none":"flex", width: "100%", height: 35, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+                                    <View style={{display: selectedTrack=='UNLISTED'?'none':'flex',justifyContent: 'center', alignItems: 'flex-end', marginVertical: 2, marginHorizontal: 2 }}>
                                         <TouchableOpacity>
                                             <Feather onPress={()=>setDeleteTrackVisible(true)} name='trash-2' size={30} color={colors.primary.purple}  />
                                         </TouchableOpacity>
@@ -406,8 +406,8 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                             <Feather name='plus-circle' size={30} color={colors.primary.purple}  />
                                         </TouchableOpacity>
                                     </View>
-                                    <DeleteTrack deleteTrackVisible={deleteTrackVisible} setDeleteTrackVisible={setDeleteTrackVisible} tracks={tracks} setTracks={setTracks} db={db} setSelectedTab={setSelectedTab} selectedTab={selectedTab} sections={sections} setSections={setSections} tasks={tasks} setTasks={setTasks}/>
-                                    <DeleteSection deleteSectionVisible={deleteSectionVisible} setDeleteSectionVisible={setDeleteSectionVisible} db={db} selectedTab={selectedTab} setSelectedTab={setSelectedTab} sections={sections} setSections={setSections} tasks={tasks} setTasks={setTasks} selectedSection={selectedSection} setSelectedSection={setSelectedSection} progress={progress} setProgress={setProgress} statusrecords={statusrecords} setStatusrecords={setStatusrecords}/>
+                                    <DeleteTrack deleteTrackVisible={deleteTrackVisible} setDeleteTrackVisible={setDeleteTrackVisible} tracks={tracks} setTracks={setTracks} db={db} setSelectedTrack={setSelectedTrack} selectedTrack={selectedTrack} sections={sections} setSections={setSections} tasks={tasks} setTasks={setTasks}/>
+                                    <DeleteSection deleteSectionVisible={deleteSectionVisible} setDeleteSectionVisible={setDeleteSectionVisible} db={db} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} sections={sections} setSections={setSections} tasks={tasks} setTasks={setTasks} selectedSection={selectedSection} setSelectedSection={setSelectedSection} progress={progress} setProgress={setProgress} statusrecords={statusrecords} setStatusrecords={setStatusrecords}/>
                                 </View>
                             </View>
                         </View>  

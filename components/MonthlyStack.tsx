@@ -8,7 +8,7 @@ import AnalyticsHome from '../screens/Analytics/AnalyticsHome';
 
 const width = Dimensions.get('window').width;
 
-export default function Monthly({year, month, tasks, tracks, setTracks, load, loadx, db, setTasks, mlogs, setmLogs}) {
+export default function MonthlyStack({year, month, tasks, tracks, setTracks, load, loadx, db, setTasks, mlogs, setmLogs}) {
   const insets = useSafeAreaInsets();
   const height = Dimensions.get('window').height - insets.top - insets.bottom; 
 

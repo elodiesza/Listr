@@ -155,13 +155,13 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
                 control= {control}
                 name="task"
                 render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
-                  <View style={{flexDirection:'column'}}>
+                  <View style={{flexDirection:'column', flex:1}}>
                     <TextInput
                       value={taskInput}
                       onChangeText={(val)=>setTaskInput(val)}
                       onBlur={onBlur}
                       placeholder={task}
-                      style={{borderColor: error ? 'red' : '#e8e8e8',height:50,width:width-90}}
+                      style={{borderColor: error ? 'red' : '#e8e8e8',height:50,flex:1}}
                     />
                     {error && (
                       <Text style={{color: 'red', alignSelf: 'stretch'}}>{error.message || 'Error'}</Text>
@@ -180,7 +180,7 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
                   },
                 }}
           />
-          <Pressable onPress={editTask} style={{height:40, flex:1, justifyContent:'center', alignItems:'center',backgroundColor:colors.primary.purple}}>
+          <Pressable onPress={editTask} style={{height:40, width:60, justifyContent:'center', alignItems:'center',backgroundColor:colors.primary.purple}}>
             <Ionicons name='send' size={20} color={colors.primary.white}/>
           </Pressable>
         </Pressable>

@@ -1,12 +1,12 @@
 import { ImageBackground,Pressable, Text, View, Dimensions, SafeAreaView } from 'react-native';
 import { useState, useEffect } from 'react';
 import moment from 'moment';
-import Monthly from '../components/Monthly';
+import MonthlyStack from '../components/MonthlyStack';
 import { container } from '../styles';
 import { Feather } from '@expo/vector-icons';
 import background from '../assets/images/design/background.jpg';
 
-const MonthlyTab = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sections, settings, mlogs, setmLogs}) => {
+const Monthly = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sections, settings, mlogs, setmLogs}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   var today = new Date();
@@ -88,7 +88,7 @@ const MonthlyTab = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sectio
           <Feather name='chevron-right' size={40} style={{left:30}} color={'black'}/>
         </Pressable>
       </View>
-      <Monthly year={year} month={month} day={day} 
+      <MonthlyStack year={year} month={month} day={day} 
       tasks={tasks} tracks={tracks} setTracks={setTracks} 
       load={load} loadx={loadx} db={db} setTasks={setTasks} 
       mlogs={mlogs} setmLogs={setmLogs}
@@ -99,4 +99,4 @@ const MonthlyTab = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sectio
 };
 
 
-export default MonthlyTab;
+export default Monthly;
