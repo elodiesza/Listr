@@ -4,7 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { container, colors} from '../styles';
 import uuid from 'react-native-uuid';
 import Modal from 'react-native-modal';
-import { Feather } from '@expo/vector-icons';
+import { Feather,Ionicons } from '@expo/vector-icons';
 
 const width = Dimensions.get('window').width;
 
@@ -77,8 +77,8 @@ function NewProgress({addModalVisible, setAddModalVisible, db, progress, setProg
                   },
                 }}
               />
-              <Pressable onPress={handleSubmit(addProgress)} style={{justifyContent:'center',height:40, flex:1, alignItems:'center'}}>
-                <Feather name='plus-circle' color={colors.primary.purple} size={20}/>
+              <Pressable onPress={handleSubmit(addProgress)} style={{backgroundColor: colors.primary.purple, justifyContent:'center',height:40, width:40, alignItems:'center'}}>
+                <Ionicons name='send' size={18} color={colors.primary.white}/>
               </Pressable>
             </View>
           </View> 

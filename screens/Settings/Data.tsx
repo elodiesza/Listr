@@ -1,4 +1,4 @@
-import { View, SafeAreaView,Pressable,  ScrollView, Text, Button, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, SafeAreaView,Pressable, Text} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { CommonActions } from '@react-navigation/native';
 import { container,colors } from '../../styles';

@@ -1,16 +1,16 @@
 import { Text, Pressable } from 'react-native';
-import { container } from '../styles';
-import Svg, { Path } from 'react-native-svg';
+import { container,colors, paleColor } from '../styles';
 
-function Tab({color,title, onPress}) {
+function Tab({item, selectedTrack,setSelectedTrack}) {
 
-const pathData = `M 0 40 Q 15 40, 20 30 L 30,10 Q 35 0, 45 0 H 140 Q 150 0, 155 10 L 165 30 Q 170 40, 180 40 `; 
   return (
-    <Pressable onPress={onPress} style={[container.container,{backgroundColor:'transparent',height:40,flexDirection:'row', alignItems:'flex-end',width:180}]}>
-        <Svg>
-            <Path d={pathData} fill={color} strokeWidth={0.5} stroke={'black'}  />
-        </Svg>
-        <Text style={{fontSize:16,fontFamily:'AvenirNextCondensed-Regular',position:'absolute', bottom:8}}> {title} </Text>
+    <Pressable onPress={()=>setSelectedTrack(item.track)} style={[container.tab,{ shadowRadius: 5,
+      shadowOpacity: selectedTrack==item.track?0.3:0,
+      shadowColor: colors.primary.black,
+      shadowOffset: { width: 5, height: 5 }, zIndex:item.track==selectedTrack?1:0,bottom:item.track==selectedTrack? -1:1,borderRightWidth:item.track==selectedTrack? 0.5:0,borderLeftWidth:item.track==selectedTrack? 0.5:0,borderTopWidth:item.track==selectedTrack? 0.5:0,backgroundColor:item.color!==""?paleColor(item.color):colors.primary.default}]}>
+      <Text style={container.tabtext}>
+          {item.track}
+      </Text>
     </Pressable>
   );
 }

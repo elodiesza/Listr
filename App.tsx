@@ -114,13 +114,12 @@ function App() {
              <Feather name="sun" size={28}/>  
           </View>),
           tabBarBadge: number,
-          tabBarBadgeStyle: {backgroundColor:colors.primary.purple, color:colors.primary.white, fontSize:12, fontWeight:'bold', bottom:10, left:30, width:20, height:20, borderRadius:10, alignItems:'center', justifyContent:'center', position:'absolute'},
+          tabBarBadgeStyle: {backgroundColor:colors.primary.purple, color:colors.primary.white, fontSize:9, fontWeight:'bold', bottom:10, left:30, width:20, height:20, borderRadius:10, alignItems:'center', justifyContent:'center', position:'absolute'},
         }}
         />
         <Tab.Screen name="Settings" children={()=><Settings 
         db={db} tasks={tasks} setTasks={setTasks} 
-        tracks={tracks} setTracks={setTracks} 
-        load={load} loadx={loadx} 
+        tracks={tracks} setTracks={setTracks} sections={sections} setSections={setSections}
         statusrecords={statusrecords} setStatusrecords={setStatusrecords}
         statuslist={statuslist} setStatuslist={setStatuslist}
         logs={logs} setLogs={setLogs}

@@ -5,7 +5,7 @@ import Modal from 'react-native-modal';
 
 const width = Dimensions.get('window').width;
 
-function DeleteDBvalid({deleteVisible, setDeleteVisible, db, setSections, setTasks, setTracks, setProgress, setStatusrecords, setStatuslist, setLogs, selectedData}) {
+function DeleteDBvalid({deleteVisible, setDeleteVisible, db, setSections, setTasks, setTracks, setProgress, setStatusrecords, setStatuslist, setLogs, setmLogs, selectedData}) {
 
 
   function Delete() {
@@ -20,11 +20,31 @@ function DeleteDBvalid({deleteVisible, setDeleteVisible, db, setSections, setTas
       (txObj, resultSet) => setSections([]),
       (txObj, error) => console.log('error selecting sections')
       )})
+      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS statusrecords', null,
+      (txObj, resultSet) => setStatusrecords([]),
+      (txObj, error) => console.log('error selecting status records')
+      )})
+      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS progress', null,
+      (txObj, resultSet) => setProgress([]),
+      (txObj, error) => console.log('error selecting progress')
+      )})
     } 
     else if (selectedData=='tracks') {
       db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS tracks', null,
       (txObj, resultSet) => setTracks([]),
       (txObj, error) => console.log('error selecting tracks')
+      )})
+      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS sections', null,
+      (txObj, resultSet) => setSections([]),
+      (txObj, error) => console.log('error selecting sections')
+      )})
+      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS statusrecords', null,
+      (txObj, resultSet) => setStatusrecords([]),
+      (txObj, error) => console.log('error selecting status records')
+      )})
+      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS progress', null,
+      (txObj, resultSet) => setProgress([]),
+      (txObj, error) => console.log('error selecting progress')
       )})
     }
     else if (selectedData=='statusrecords') {
@@ -49,6 +69,10 @@ function DeleteDBvalid({deleteVisible, setDeleteVisible, db, setSections, setTas
       db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS logs', null,
       (txObj, resultSet) => setLogs([]),
       (txObj, error) => console.log('error selecting logs')
+      )})
+      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS mlogs', null,
+      (txObj, resultSet) => setmLogs([]),
+      (txObj, error) => console.log('error selecting mlogs')
       )})
     }
     setDeleteVisible(false);

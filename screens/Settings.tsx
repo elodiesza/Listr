@@ -13,8 +13,8 @@ import background from '../assets/images/design/background.jpg';
 
 const Stack = createNativeStackNavigator();
 
-const SettingsNavigator =({db, tasks, setTasks, tracks, setTracks, load, loadx, 
-  statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs})=> {
+const SettingsNavigator =({db, tasks, setTasks, tracks, setTracks, sections, setSections,
+  statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs,  setmLogs, progress, setProgress})=> {
 
 
     return (
@@ -27,19 +27,18 @@ const SettingsNavigator =({db, tasks, setTasks, tracks, setTracks, load, loadx,
       <Stack.Screen name="Help" component={Help} />
       <Stack.Screen
         name="DeleteDB"
-        component={()=>DeleteDB({db, tasks, setTasks, tracks, setTracks, load, loadx,
-          statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs})} />
+        component={()=>DeleteDB({db, tasks, setTasks, tracks, setTracks, sections, setSections,
+          statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs, setmLogs, progress, setProgress})} />
       <Stack.Screen
         name="Linkdata"
-        component={()=>Linkdata({db, tasks, setTasks, tracks, setTracks, load, loadx,
-          statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs})} />
+        component={()=>Linkdata({})} />
 
     </Stack.Navigator>
   );
 }
 
-function Settings({db, tasks, setTasks, tracks, setTracks,load, loadx, 
-  statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs}) {
+function Settings({db, tasks, setTasks, tracks, setTracks, sections, setSections,
+  statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs, setmLogs, progress, setProgress}) {
 
 
   return (
@@ -49,10 +48,10 @@ function Settings({db, tasks, setTasks, tracks, setTracks,load, loadx,
               <Text style={container.headertitle}>SETTINGS</Text>
           </View>
           <SettingsNavigator db={db} tasks={tasks} setTasks={setTasks} 
-          tracks={tracks} setTracks={setTracks} 
-          load={load} loadx={loadx} 
+          tracks={tracks} setTracks={setTracks} sections={sections} setSections={setSections}
           statusrecords={statusrecords} setStatusrecords={setStatusrecords}
           statuslist={statuslist} setStatuslist={setStatuslist} logs={logs} setLogs={setLogs}
+          setmLogs={setmLogs} progress={progress} setProgress={setProgress}
           />
       </SafeAreaView>
     </ImageBackground>

@@ -1,5 +1,5 @@
-import { Keyboard,Animated, Easing, TextInput, TouchableOpacity, Pressable, Text, View, Dimensions } from 'react-native';
-import { useState,useEffect } from 'react';
+import { Keyboard,Animated, Easing, TextInput, Pressable, Text, View, Dimensions } from 'react-native';
+import { useState,useEffect, useRef } from 'react';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { Feather } from '@expo/vector-icons';
 import NewTask from '../modal/NewTask';
@@ -21,6 +21,17 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
     if (editIndex !== -1) {
       setEditIndex(-1);
     }
+  };
+
+  const openRowRef = useRef(null);
+  const onRowDidOpen = (rowKey,rowMap) => {  
+      openRowRef.current = rowMap[rowKey];
+  };
+  const closeOpenRow = () => {
+      if (openRowRef.current && openRowRef.current.closeRow) {
+          openRowRef.current.closeRow();
+          openRowRef.current = null;
+      }
   };
   
     const startOpenAnimation = () => {
@@ -156,6 +167,7 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
       )
     }
 
+
   
   const TransferDaily = (id) => {
     let existingTasks = [...tasks];
@@ -171,6 +183,7 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
         (txObj, error) => console.log('Error updating data', error)
       );
     });
+    closeOpenRow();
   }
 
   const DeleteItem = ({ id }) => (
@@ -181,8 +194,8 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
         </Pressable>
       </View>
       <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, backgroundColor: 'darkred' }}>
-        <Pressable onPress={() => 
-        db.transaction(tx => {
+        <Pressable onPress={() =>
+        {db.transaction(tx => {
           tx.executeSql('DELETE FROM tasks WHERE id = ?', [id],
             (txObj, resultSet) => {
               if (resultSet.rowsAffected > 0) {
@@ -192,7 +205,9 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
             },
             (txObj, error) => console.log(error)
           );
-        })}>
+          closeOpenRow();
+        })}
+        }>
           <Feather name="trash-2" size={25} color={'white'} />
         </Pressable>
       </View>
@@ -252,10 +267,13 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
               time={undefined} section={undefined} trackScreen={false} archive={false} recurring={item.recurring} tabcolor={undefined} 
               monthly={true} year={item.year} month={item.monthly} day={item.day}
               editIndex={editIndex} setEditIndex={setEditIndex} index={index}/>} 
-              renderHiddenItem={({ item }) => <DeleteItem id={item.id} />} bounces={false} 
+              renderHiddenItem={({ item }) => <DeleteItem id={item.id} />} 
+              bounces={false} 
               rightOpenValue={-100}
               disableRightSwipe={true}
+              onRowDidOpen={onRowDidOpen}
               closeOnRowBeginSwipe={true}
+              keyExtractor= {(item,index) => index.toString()}
             />
             <View style={{flexDirection:'row', height:40, paddingLeft:15, alignItems:'center', borderTopWidth:1,borderTopColor:colors.primary.gray}}>
               <Controller
@@ -294,10 +312,6 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
 
           </Animated.View>
         </View>
-      
-      <TouchableOpacity onPress={() => setAddModalVisible(true)} style={{justifyContent: 'center', position: 'absolute', bottom:55, right: 15, flex: 1}}>
-        <Feather name='plus-circle' size={40} color={colors.primary.purple} />
-      </ TouchableOpacity> 
       <NewTask
         addModalVisible={addModalVisible===true}
         setAddModalVisible={setAddModalVisible}

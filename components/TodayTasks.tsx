@@ -5,6 +5,7 @@ import { Feather, Octicons } from '@expo/vector-icons';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { container, colors, paleColor } from '../styles';
 import Task from './Task';
+import Tab from './Tab';
 import uuid from 'react-native-uuid';
 import { useForm, Controller, set } from 'react-hook-form';
 
@@ -190,15 +191,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
       </Pressable> 
     </View>
   );
-  const TabItem = ({item,index, selected}) => {
-    return (
-        <Pressable onPress={()=>setSelectedTrack(item.track)} style={[container.tab,{zIndex:item.track==selectedTrack?1:0,bottom:item.track==selectedTrack? 0:1,borderRightWidth:item.track==selectedTrack? 0.5:0,borderLeftWidth:item.track==selectedTrack? 0.5:0,borderTopWidth:item.track==selectedTrack? 0.5:0,backgroundColor:item.color!==""?paleColor(item.color):colors.primary.default}]}>
-            <Text style={container.tabtext}>
-                {item.track}
-            </Text>
-      </Pressable>
-    );
-};
+
 
   return (
       <Pressable style={container.body} onPress={handleClickOutside}>
@@ -208,12 +201,12 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
               <FlatList
                 data={[... new Set(tracks),{'id':'daily','track':'DAILY','color':colors.primary.default}]} 
                 renderItem={({item,index}) => 
-                  <TabItem item={item} index={index} selected={selectedTrack==item.track?-0.5:0} />
+                  <Tab item={item} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack}/>
                 }
                 horizontal={true}
                 bounces={true}
                 keyExtractor= {(item,index) => index.toString()}
-                contentContainerStyle={{flexDirection:'row-reverse',justifyContent:'flex-start',alignItems:'flex-end',paddingLeft:10}}
+                contentContainerStyle={{flexDirection:'row-reverse',paddingLeft:10}}
                 showsHorizontalScrollIndicator={false}
               />
             </View>
@@ -293,9 +286,6 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
             </View>
           </Animated.View>
         </View>
-        <TouchableOpacity onPress={() => setAddModalVisible(true)} style={{justifyContent: 'center', position: 'absolute', bottom:55, right: 15, flex: 1}}>
-          <Feather name='plus-circle' size={40} color={colors.primary.purple} />
-        </TouchableOpacity> 
         <NewTask
         addModalVisible={addModalVisible===true}
         setAddModalVisible={setAddModalVisible}
