@@ -10,12 +10,17 @@ import { useForm, Controller, set } from 'react-hook-form';
 
 const width = Dimensions.get('window').width;
 
-function Task({db, tasks, setTasks, date,task, taskState, id , time, section, trackScreen, recurring, tabcolor, monthly, year, month, day, editIndex, setEditIndex, index}) {
+function Task({db, tasks, setTasks, date,task, taskState, id , time, section, trackScreen, recurring, tabcolor, monthly, year, month, day, editIndex, setEditIndex, index, selectedSection, setSelectedSection}) {
   
   const {control, handleSubmit, reset} = useForm();
   const [taskInput, setTaskInput] = useState(task);
 
   const today= new Date();
+  const todayDate = moment(today).format("YY-MM-DD");
+  const tomorrowDate = moment(new Date(today.setDate(today.getDate()+1))).format("YY-MM-DD");
+  const dateDate = moment(date).format("YY-MM-DD");
+
+
   const updateTaskState = () => {
     let existingTasks=[...tasks];
     let indexToUpdate = existingTasks.findIndex(c => c.id === id);
@@ -138,10 +143,10 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
       <View style={{display:(recurring==0 || trackScreen)?"none":"flex",height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
         <Entypo name="cycle" size={20} color={colors.primary.black} />
       </View>
-      <View style={{display:(trackScreen && moment(date).format("YY-MM-DD")==moment(today).format("YY-MM-DD"))?"flex":"none",height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
+      <View style={{display:(trackScreen && (dateDate==todayDate || dateDate==tomorrowDate))?"flex":"none",height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
         <Feather name="calendar" size={20} color={colors.primary.black} />
       </View>
-      <Pressable onPress={()=>setEditIndex(index)} style={{flex:6, display: editIndex==index?'none':'flex'}}>
+      <Pressable onLongPress={()=>{setEditIndex(index);setSelectedSection(section);}} style={{flex:6, display: (editIndex==index && selectedSection==section)?'none':'flex'}}>
         <Text style={{marginLeft:5,display:(section==undefined || trackScreen)?"none":"flex",color:tabcolor, fontWeight:'bold'}}>
           {section} >
         </Text>        
@@ -149,7 +154,7 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
           {task}
         </Text>
       </Pressable>
-      {editIndex==index &&
+      {editIndex==index && selectedSection==section &&
         <Pressable style={{flex:1, flexDirection:'row', alignItems:'center'}}>   
           <Controller
                 control= {control}
@@ -191,7 +196,7 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
       <View style={{display:(monthly && day!==null && day!==undefined)?"flex":"none",width:60,height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
           <Text style={{fontSize:10, right:10}}>{moment(new Date(year,month+1,day)).format("MM/DD")}</Text>
       </View>
-      <Pressable onPress={()=> updateTaskState()} style={{display:editIndex==index?'none':'flex',marginRight:5}}>
+      <Pressable onPress={()=> updateTaskState()} style={{display:(editIndex==index && selectedSection==section)?'none':'flex',marginRight:5}}>
         <MaterialCommunityIcons name={taskState===0 ? 'checkbox-blank-outline' : (
           taskState===1 ? 'checkbox-intermediate' : (
           taskState===2 ? 'checkbox-blank' :

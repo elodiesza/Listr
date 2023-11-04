@@ -1,7 +1,6 @@
 import { Animated, Easing, Keyboard, FlatList, TextInput, TouchableOpacity, Text, View, Dimensions, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
-import NewTask from '../modal/NewTask';
-import { Feather, Octicons } from '@expo/vector-icons';
+import { Feather, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { container, colors, paleColor } from '../styles';
 import Task from './Task';
@@ -71,7 +70,6 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
 
 
   const {control, handleSubmit, reset} = useForm();
-  const [addModalVisible, setAddModalVisible] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState('all');
   const [logsLoading, setLogsLoading] = useState(true);
   
@@ -157,7 +155,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
     let existingTasks = [...tasks]; 
     db.transaction((tx) => {
       tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
-      [uuid.v4(),data.task,date.getFullYear(),date.getMonth(),date.getDate(),0,0,false,selectedTrack=='all'?'DAILY':selectedTrack,null,undefined],
+      [uuid.v4(),data.task,date.getFullYear(),date.getMonth(),date.getDate(),0,0,false,(selectedTrack=='all'||selectedTrack=='tocomplete')?'DAILY':selectedTrack,null,undefined],
       (txtObj,resultSet)=> {    
         existingTasks.push({ id: uuid.v4(), task: data.task, year:date.getFullYear(), month:date.getMonth(), day:date.getDate(), taskState:0, recurring:0, 
           monthly:false, track:selectedTrack=='all'?'DAILY':selectedTrack, time:null, section: undefined});
@@ -171,6 +169,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
   };
 
   const dailyData = tasks.filter(c=>(c.day==date.getDate() && c.month==date.getMonth() && c.year==date.getFullYear()));
+  const tocomplete = tasks.filter(c=>(c.day==date.getDate() && c.month==date.getMonth() && c.year==date.getFullYear() && (c.taskState==0 || c.taskState==1)));
 
   const DeleteItem = ({ id }) => (
     <View style={{flex: 1,justifyContent: 'center', alignItems: 'flex-end', paddingRight: 25, backgroundColor:'darkred'}}>
@@ -210,6 +209,9 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
                 showsHorizontalScrollIndicator={false}
               />
             </View>
+            <Pressable onPress={()=> setSelectedTrack('tocomplete')}>
+              <MaterialCommunityIcons name='checkbox-blank-outline' size={23} style={{marginLeft:10,marginTop:3}} color={selectedTrack=='tocomplete'?colors.primary.black:colors.primary.defaultdark}/>
+            </Pressable>
             <Pressable onPress={()=> setSelectedTrack('all')}>
               <Octicons name='stack' size={23} style={{marginHorizontal:10,marginTop:3}} color={selectedTrack=='all'?colors.primary.black:colors.primary.defaultdark}/>
             </Pressable>
@@ -234,7 +236,7 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
             <View style={{flex:1}}>
           {isLoading==false && logs.filter(c=>(c.year==year && c.month==month && c.day==day))[0]!==undefined &&  (
             <SwipeListView 
-              data={selectedTrack=='all'? dailyData : selectedTrack=='DAILY'? dailyData.filter(c=>(c.track==undefined || c.track=='DAILY' || c.track=='UNLISTED')) : dailyData.filter(c=>(c.track==selectedTrack))} 
+              data={selectedTrack=='all'? dailyData : selectedTrack=='DAILY'? dailyData.filter(c=>(c.track==undefined || c.track=='DAILY' || c.track=='UNLISTED')) : selectedTrack=='tocomplete'? tocomplete : dailyData.filter(c=>(c.track==selectedTrack))} 
               scrollEnabled={true} 
               renderItem={({ item,index }) => 
                 <Task db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} setTracks={setTracks} 
@@ -286,19 +288,6 @@ function TodayTasks({db, tasks, setTasks, tracks, setTracks, load, loadx, date, 
             </View>
           </Animated.View>
         </View>
-        <NewTask
-        addModalVisible={addModalVisible===true}
-        setAddModalVisible={setAddModalVisible}
-        db={db}
-        tasks={tasks}
-        setTasks={setTasks}
-        tracks={tracks}
-        track={undefined}
-        section={undefined}
-        pageDate={date}
-        tracksScreen={false}
-        monthly={false}
-        />
     </Pressable>
   );
 }

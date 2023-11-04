@@ -1,5 +1,4 @@
 import { StyleSheet,Dimensions } from "react-native";
-import React, { useState } from 'react';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -219,7 +218,7 @@ export const container = StyleSheet.create({
     tab: {
         width: width/4,
         maxWidth: 150,
-        height: 28,
+        height: 28.5,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: colors.primary.default,

@@ -65,6 +65,7 @@ const Preferences = ({db}) => {
                 <Ionicons name='timer-outline' size={25} color={enabledNotif?colors.primary.black:colors.primary.gray}/>
                 <Text style={{marginLeft:10, color:enabledNotif?colors.primary.black:colors.primary.gray}}>Alert time before expiry</Text>
             </Pressable>
+            <Text> Not yet ready sorry :( I hope the current theme is okay !</Text>
         </View>
 
     );

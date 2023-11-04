@@ -10,12 +10,11 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
-  sections, settings, logs, setLogs}) => {
+  sections, settings, logs, setLogs, date, setDate}) => {
 
   var today = new Date();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [date, setDate] = useState(today);
   const [showLauncherScreen, setShowLauncherScreen] = useState(false);
 
 

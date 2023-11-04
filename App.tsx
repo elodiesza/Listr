@@ -49,10 +49,13 @@ function App() {
   const [selectedTrack, setSelectedTrack] = useState(selectedTab=='Tracks'?'UNLISTED':'all');
   const [selectedTrackColor, setSelectedTrackColor] = useState(selectedTrack==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTrack).map(c=>c.color)[0]);
 
+  const [date, setDate] = useState(new Date());
   const today = new Date();
-  const day = today.getDate();
-  const month = today.getMonth();
   const year = today.getFullYear();
+  const month = today.getMonth();
+  const day = today.getDate();
+
+
   const number = tasks.filter(c=>(c.year==year && c.month==month && c.day==day && c.taskState==0)).length;
 
   useEffect(() => {
@@ -93,6 +96,7 @@ function App() {
           load={load} loadx={loadx} 
           settings={settings}
           mlogs={mlogs} setmLogs={setmLogs}
+          date={date} setDate={setDate}
           />} 
           options={{ headerShown: false, tabBarShowLabel: false,
             tabBarIcon: ({focused}) => (
@@ -107,6 +111,7 @@ function App() {
         sections={sections}
         settings={settings}
         logs={logs} setLogs={setLogs}
+        date={date} setDate={setDate}
         />} 
         options={{ headerShown: false, tabBarShowLabel: false, 
           tabBarIcon: ({focused}) => (
@@ -114,7 +119,7 @@ function App() {
              <Feather name="sun" size={28}/>  
           </View>),
           tabBarBadge: number,
-          tabBarBadgeStyle: {backgroundColor:colors.primary.purple, color:colors.primary.white, fontSize:9, fontWeight:'bold', bottom:10, left:30, width:20, height:20, borderRadius:10, alignItems:'center', justifyContent:'center', position:'absolute'},
+          tabBarBadgeStyle: {backgroundColor:colors.primary.purple, color:colors.primary.white, paddingTop:1, fontSize:9, fontWeight:'bold', bottom:10, left:30, width:20, height:20, borderRadius:10, alignItems:'center', justifyContent:'center', position:'absolute'},
         }}
         />
         <Tab.Screen name="Settings" children={()=><Settings 
@@ -144,7 +149,7 @@ function App() {
         tracks={tracks}
         track={selectedTrack}
         section={undefined}
-        pageDate={new Date()}
+        pageDate={date}
         tracksScreen={selectedTab=='Tracks'?true:false}
         monthly={selectedTab=='Monthly'?true:false}
         selectedTab={selectedTab}

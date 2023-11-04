@@ -1,13 +1,8 @@
 import { FlatList, TextInput, TouchableOpacity, Button, Text, View, Dimensions, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
-import { Feather, Octicons } from '@expo/vector-icons';
-import { SwipeListView } from 'react-native-swipe-list-view';
 import { container, colors } from '../../styles';
-import Task from '../../components/Task';
-import uuid from 'react-native-uuid';
-import { useForm, Controller, set } from 'react-hook-form';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
 import {StackedBarChart, LineChart, PieChart} from 'react-native-chart-kit';
+import PieChartView from '../../components/PieChartView';
 
 const width = Dimensions.get('window').width;
 
@@ -66,25 +61,30 @@ function AnalyticsHome({db, tasks, tracks, year, month}) {
             data={[{'track':'∞','color':'#ffffff'},{'track':'☀','color':'#D3DDDF'},...new Set(tracks)]}
             renderItem={({item}) => (
                 <Pressable onPress={()=>setSelectedTrack(item.track)} style={[container.color,{borderColor:selectedTrack==item.track?colors.primary.purple:colors.primary.gray, borderWidth:selectedTrack==item.track?2:1, backgroundColor:item.color}]}>
-                    <Text style={container.title}>{item.track[0]}</Text>
+                    <Text>{item.track[0]}</Text>
                 </Pressable>
             )}
             keyExtractor={item => item.id}
             horizontal={true}
-            contentContainerStyle={{height:40, margin:10}}
+            contentContainerStyle={{height:20}}
         />
-        <View>
+        <View style={{height:40}}>
             <Text style={container.headertitle}>{selectedTrack=='☀'?'Daily ☀':selectedTrack}</Text>
         </View>
         <View style={{flex:10, width:'90%'}}>
             <View style={container.statblock}>
-                <View style={{alignItems:'center'}}>
+                <View style={{alignItems:'center',height:90}}>
                     <Text style={container.headerdate}>Recorded tasks</Text>
                     <Text style={container.keyNumber}>{taskCount}</Text>
                 </View>
                 <View style={{alignItems:'center'}}>
                     <Text style={container.headerdate}>Completed tasks</Text>
-                    <Text style={container.keyNumber}>{completedTasks}</Text>
+                    <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                        <PieChartView series={[taskCount==0?1:taskCount-completedTasks,completedTasks]} color={colors.primary.green} pieWidth={60}/>
+                        <View style={{position:'absolute'}}>
+                            <Text style={container.keyNumber}>{completedTasks}</Text>
+                        </View>
+                    </View>
                 </View>
             </View>
             <View style={{alignItems:'center'}}>

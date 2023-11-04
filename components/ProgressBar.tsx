@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const width = Dimensions.get('window').width;
 
-function ProgressBar({db, name, progress, setProgress, value, id, color, editIndex, setEditIndex, index}) {
+function ProgressBar({db, name, progress, setProgress, value, id, color, editIndex, setEditIndex, index, section, selectedSection, setSelectedSection}) {
 
   const [newProgress, setNewProgress] = useState(value);
   const [nameClicked, setNameClicked] = useState(false);
@@ -49,10 +49,10 @@ function ProgressBar({db, name, progress, setProgress, value, id, color, editInd
 
   return (
     <View style={{flexDirection:'row',backgroundColor:colors.primary.white,width:width*0.9, height:40,flex:1}}>
-        <Pressable onPress={()=>{setNameClicked(!nameClicked);setEditIndex(index);}} style={{flex:nameClicked?3/4:1/4,justifyContent:'center', marginLeft:10, display: editIndex==index?'none':'flex'}}>
+        <Pressable onLongPress={()=>{setNameClicked(!nameClicked);setEditIndex(index);setSelectedSection(section);}} style={{flex:nameClicked?3/4:1/4,justifyContent:'center', marginLeft:10, display: (editIndex==index && selectedSection==section)?'none':'flex'}}>
           <Text style={{textAlign:'left'}}>{name}</Text>
         </Pressable>
-        {editIndex==index &&
+        {editIndex==index && selectedSection==section &&
           <Pressable style={{flex:1, flexDirection:'row', alignItems:'center'}}>   
             <Controller
                   control= {control}

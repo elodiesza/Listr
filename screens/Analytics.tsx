@@ -89,7 +89,7 @@ function Analytics({db, tasks, statusrecords, tracks}) {
           <Feather name='chevron-right' size={40} style={{left:30}} color={'black'}/>
         </Pressable>
       </View>
-      <AnalyticsHome db={db} tasks={tasks} tracks={tracks} statusrecords={statusrecords} year={year} month={month}/>
+      <AnalyticsHome db={db} tasks={tasks} tracks={tracks} year={year} month={month}/>
     </SafeAreaView>
     </ImageBackground>
   );

@@ -6,13 +6,12 @@ import { container } from '../styles';
 import { Feather } from '@expo/vector-icons';
 import background from '../assets/images/design/background.jpg';
 
-const Monthly = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sections, settings, mlogs, setmLogs}) => {
+const Monthly = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sections, settings, mlogs, setmLogs, date, setDate}) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  var today = new Date();
-  var thisMonth = today.getMonth();
-  var thisYear = today.getFullYear();
-  var thisDay = today.getDate();
+  var thisMonth = date.getMonth();
+  var thisYear = date.getFullYear();
+  var thisDay = date.getDate();
   const [month,setMonth] = useState(thisMonth);
   const [year,setYear] = useState(thisYear);
   const [day, setDay] = useState(thisDay);
@@ -88,7 +87,7 @@ const Monthly = ({db, tracks, setTracks, tasks, setTasks, load, loadx, sections,
           <Feather name='chevron-right' size={40} style={{left:30}} color={'black'}/>
         </Pressable>
       </View>
-      <MonthlyStack year={year} month={month} day={day} 
+      <MonthlyStack year={year} month={month}
       tasks={tasks} tracks={tracks} setTracks={setTracks} 
       load={load} loadx={loadx} db={db} setTasks={setTasks} 
       mlogs={mlogs} setmLogs={setmLogs}

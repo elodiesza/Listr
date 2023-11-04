@@ -23,6 +23,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
     settings, selectedTrack, setSelectedTrack }) {
 
     const today= new Date();
+    const tomorrow= new Date(today.setDate(today.getDate()+1));
     const thisYear = today.getFullYear();
     const thisMonth = today.getMonth();
     const day = today.getDate();
@@ -65,9 +66,19 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
       else if (editIndex6 !== -1) {
         setEditIndex6(-1);
       }
-
+      setSelectedSection('');
     };
 
+    useEffect(() => {
+        editIndex!==-1 ? (setEditIndex2(-1), setEditIndex3(-1), setEditIndex4(-1), setEditIndex5(-1), setEditIndex6(-1)) : undefined;
+        editIndex2!==-1 ? (setEditIndex(-1), setEditIndex3(-1), setEditIndex4(-1), setEditIndex5(-1), setEditIndex6(-1)) : undefined;
+        editIndex3!==-1 ? (setEditIndex(-1), setEditIndex2(-1), setEditIndex4(-1), setEditIndex5(-1), setEditIndex6(-1)) : undefined;
+        editIndex4!==-1 ? (setEditIndex(-1), setEditIndex2(-1), setEditIndex3(-1), setEditIndex5(-1), setEditIndex6(-1)) : undefined;
+        editIndex5!==-1 ? (setEditIndex(-1), setEditIndex2(-1), setEditIndex3(-1), setEditIndex4(-1), setEditIndex6(-1)) : undefined;
+        editIndex6!==-1 ? (setEditIndex(-1), setEditIndex2(-1), setEditIndex3(-1), setEditIndex4(-1), setEditIndex5(-1)) : undefined;
+    },[editIndex,editIndex2,editIndex3,editIndex4,editIndex5,editIndex6]);
+
+   
     const arrowArray = () => {
         let arrowArray = [];
         const sectionLength = sections.filter(c=>c.track==selectedTrack).length;
@@ -152,6 +163,28 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
         closeOpenRow();
     }
 
+    const TransferTomorrow = (id) => {
+        let existingTasks = [...tasks];
+        let tmrwyear= tomorrow.getFullYear();
+        let tmrwmonth= tomorrow.getMonth();
+        let tmrwday= tomorrow.getDate();
+        const toTransfer = existingTasks.map(c=>c.id).findIndex(c=>c==id);
+        db.transaction(tx=> {
+            tx.executeSql('UPDATE tasks SET year = ?, month=?, day=? WHERE id= ?', [tmrwyear,tmrwmonth,tmrwday, id],
+              (txObj, resultSet) => {
+                if (resultSet.rowsAffected > 0) {
+                  existingTasks[toTransfer].year = tmrwyear;
+                  existingTasks[toTransfer].month = tmrwmonth;
+                  existingTasks[toTransfer].day = tmrwday;
+                  setTasks(existingTasks);
+                }
+              },
+              (txObj, error) => console.log('Error updating data', error)
+            );
+        });
+        closeOpenRow();
+    }
+
     const TransferArchive = (id,reverse) => {
         let existingrecords = [...statusrecords];
         const toTransfer = existingrecords.map(c=>c.id).findIndex(c=>c==id);
@@ -170,9 +203,15 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
 
     const TaskSwipeItem = ({ id }) => (
         <View style={{ flex: 1, backgroundColor: 'green', flexDirection: 'row' }}>
-            <View style={{ width: 0.9*width -50, paddingRight: 12, justifyContent: 'center', alignItems: 'flex-end', backgroundColor: colors.primary.yellowgreen }}>
+            <View style={{ width: 0.9*width -100, paddingRight: 12, justifyContent: 'center', alignItems: 'flex-end', backgroundColor: colors.primary.yellowgreen }}>
                 <Pressable onPress={()=>TransferDaily(id)}>
                     <Feather name="calendar" size={25} color={'white'} />
+                </Pressable>
+            </View>
+            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, backgroundColor: colors.primary.orange }}>
+                <Pressable onPress={()=>TransferTomorrow(id)}>
+                    <Feather name="calendar" size={25} color={'white'} style={{position:'absolute',top: -6, right:-6}}/>
+                    <Text style={{top:4,fontSize:11, color:colors.primary.white, fontWeight:'bold'}}>+1</Text>
                 </Pressable>
             </View>
             <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, backgroundColor: 'darkred' }}>
@@ -272,7 +311,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                         <Text style={{fontSize:20, fontFamily:'AvenirNextCondensed-Regular'}}>TRACKS</Text>
                     </View>
                     <View style={container.block}>
-                        <View style={{height:29, zIndex:1, bottom:-1, flexDirection:'row'}}>
+                        <View style={{ zIndex:1, bottom:-1, flexDirection:'row'}}>
                             <FlatList
                                 data={[... new Set(tracks),{'id':'unlisted','track':'UNLISTED','color':colors.primary.default}]}
                                 renderItem={({item,index}) =>  <Tab item={item} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack}/>}
@@ -304,11 +343,11 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                             sections={sections} date={new Date(item.year,item.month,item.day)} section={item.section} task={item.task} 
                                             taskState={item.taskState} time={undefined} track={selectedTrack} id={item.id} trackScreen={true} 
                                             archive={false} recurring={0} tabcolor={selectedTrackColor}
-                                            editIndex={editIndex} setEditIndex={setEditIndex} index={index}/>
+                                            editIndex={editIndex} setEditIndex={setEditIndex} index={index} selectedSection={selectedSection} setSelectedSection={setSelectedSection}/>
                                             }
                                             renderHiddenItem={({ item }) => <TaskSwipeItem id={item.id} />} 
                                             bounces={false} 
-                                            rightOpenValue={-100}
+                                            rightOpenValue={-150}
                                             disableRightSwipe={true}
                                             closeOnRowBeginSwipe={true}
                                             onRowDidOpen={onRowDidOpen}
@@ -320,7 +359,8 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                             <>
                                             { selectedProgress!==index && (
                                             <ProgressBar db={db} name={item.name} progress={progress} setProgress={setProgress} value={item.progress} 
-                                            id={item.id} color={selectedTrackColor} editIndex={editIndex2} setEditIndex={setEditIndex2} index={index}/>
+                                            id={item.id} color={selectedTrackColor} editIndex={editIndex2} setEditIndex={setEditIndex2} index={index}
+                                            section={item.list} selectedSection={selectedSection} setSelectedSection={setSelectedSection}/>
                                             )}
                                             </>
                                             }
@@ -337,7 +377,8 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                             renderItem={({item,index}) =>
                                             <Status db={db} name={item.name} list={item.list} statuslist={statuslist} statusrecords={statusrecords} 
                                             setStatusrecords={setStatusrecords} number={item.number} id={item.id}
-                                            editIndex={editIndex3} setEditIndex={setEditIndex3} index={index}/>
+                                            editIndex={editIndex3} setEditIndex={setEditIndex3} index={index}
+                                            section={item.section} selectedSection={selectedSection} setSelectedSection={setSelectedSection}/>
                                             }
                                             renderHiddenItem={({ item }) => <StatusSwipeItem id={item.id} reverse={false}/>} 
                                             bounces={false} 
@@ -405,7 +446,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                             data={progress.filter(c=>(c.track==selectedTrack && c.progress==100))}
                                             renderItem={({item,index}) =>
                                                 <View style={{height:40,width:width*0.9,backgroundColor:colors.primary.white,flexDirection:'row'}}>
-                                                    <View style={{width:width*0.9-140,justifyContent:'center',paddingLeft:10}}>
+                                                    <View style={{width:width*0.9-110,justifyContent:'center',paddingLeft:10}}>
                                                         <Text>{item.name}</Text>
                                                     </View>
                                                     <FlatList
@@ -428,9 +469,9 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                                                 );
                                                             });
                                                         }} style={{justifyContent:'center'}}>
-                                                            <Ionicons name="star" size={25} color={item.rate<=progress.filter(c=>(c.track==selectedTrack&&c.name==item.name)).map(c=>c.rate)[0]?selectedTrackColor:'transparent'}/>
+                                                            <Ionicons name="star" size={20} color={item.rate<=progress.filter(c=>(c.track==selectedTrack&&c.name==item.name)).map(c=>c.rate)[0]?selectedTrackColor:'transparent'}/>
                                                             <View style={{position:'absolute'}}>
-                                                                <Ionicons name="star-outline" size={25} />
+                                                                <Ionicons name="star-outline" size={20} />
                                                             </View>
                                                         </Pressable>
                                                     }
@@ -452,7 +493,8 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                         renderItem={({item,index}) =>
                                         <Status db={db} name={item.name} list={item.list} statuslist={statuslist} statusrecords={statusrecords} 
                                         setStatusrecords={setStatusrecords} number={item.number} id={item.id}
-                                        editIndex={editIndex6} setEditIndex={setEditIndex6} index={index}/>
+                                        editIndex={editIndex6} setEditIndex={setEditIndex6} index={index}
+                                        section={item.section} selectedSection={selectedSection} setSelectedSection={setSelectedSection}/>
                                         }
                                         renderHiddenItem={({ item,index }) => <StatusSwipeItem id={item.id} reverse={true}/>} 
                                         bounces={false} 
