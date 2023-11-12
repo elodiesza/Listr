@@ -135,7 +135,8 @@ const Monthly = ({db, tracks, setTracks, tasks, setTasks, sections, settings, ml
           </View>
         </View>
         <View style={{display:selectedTab=='MONTHLY'?'flex':'none',width:width}}>
-          <MonthlyTasks db={db} tracks={tracks} setTracks={setTracks} year={year} month={month} tasks={tasks} setTasks={setTasks} mlogs={mlogs} setmLogs={setmLogs}/>
+          <MonthlyTasks db={db} tracks={tracks} setTracks={setTracks} year={year} month={month} 
+          tasks={tasks} setTasks={setTasks} mlogs={mlogs} setmLogs={setmLogs} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack}/>
         </View>
         <View style={{display:selectedTab=='CALENDAR'?'flex':'none',width:width, flex:1}}>
           <Calendar db={db} tracks={tracks} year={year} month={month} tasks={tasks} selectedTrack={selectedTrack}/>

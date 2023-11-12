@@ -404,7 +404,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                             </TouchableOpacity> 
                                         </View>
                                     </View>
-                                    <NewTask addModalVisible={newTaskVisible} setAddModalVisible={setNewTaskVisible} db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} track={selectedTrack} section={selectedSection} pageDate={undefined} tracksScreen={true} monthly={false}/>
+                                    <NewTask addModalVisible={newTaskVisible} setAddModalVisible={setNewTaskVisible} db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} selectedTrack={selectedTrack} track={selectedTrack} setSelectedTrack={setSelectedTrack} section={selectedSection} pageDate={undefined} tracksScreen={true} monthly={false}/>
                                     <NewSlider addModalVisible={NewSliderVisible} setAddModalVisible={setNewSliderVisible} db={db} sliders={sliders} setSliders={setSliders} track={selectedTrack} section={selectedSection}/>
                                     <NewStatus newStatusVisible={newStatusVisible} setNewStatusVisible={setNewStatusVisible} db={db} statuslist={statuslist} setStatuslist={setStatuslist} statusrecords={statusrecords} setStatusrecords={setStatusrecords} selectedTrack={selectedTrack} selectedSection={selectedSection}/>
                                 </View>

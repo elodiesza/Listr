@@ -9,7 +9,7 @@ function DeleteSection({deleteSectionVisible, setDeleteSectionVisible, db, selec
 
 
   function DeleteSectionDB() {
-    const id= sections.filter(c=>c.section==selectedSection).map(c=>c.id)[0];
+    const id= sections.filter(c=>c.name==selectedSection).map(c=>c.id)[0];
     db.transaction(tx=> {
         tx.executeSql('DELETE FROM sections WHERE id = ?', [id],
         (txObj, resultSet) => {
@@ -36,7 +36,7 @@ function DeleteSection({deleteSectionVisible, setDeleteSectionVisible, db, selec
         tx.executeSql('DELETE FROM sliders WHERE track = ? AND section = ?', [selectedTrack, selectedSection],
         (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-                let existingsliders = [...sliders].filter(c=>(c.list!==selectedSection || c.track!==selectedTrack));
+                let existingsliders = [...sliders].filter(c=>(c.section!==selectedSection || c.track!==selectedTrack));
                 setSliders(existingsliders);
               }
         },
@@ -58,7 +58,6 @@ function DeleteSection({deleteSectionVisible, setDeleteSectionVisible, db, selec
     setDeleteSectionVisible(false);  
   };
  
-
   return (
     <Modal
       isVisible={deleteSectionVisible}

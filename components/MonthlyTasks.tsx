@@ -11,7 +11,7 @@ import { useForm, Controller, set } from 'react-hook-form';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-export default function MonthlyTasks({db, tracks, setTracks, year, month, tasks, setTasks, mlogs, setmLogs}) {
+export default function MonthlyTasks({db, tracks, setTracks, year, month, tasks, setTasks, mlogs, setmLogs, selectedTrack, setSelectedTrack}) {
   
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const openKeyboardAnimationValue = new Animated.Value(0);
@@ -229,7 +229,7 @@ export default function MonthlyTasks({db, tracks, setTracks, year, month, tasks,
       tx.executeSql('INSERT INTO tasks (id,task,year,month,day,state,recurring, monthly, track, time, section, creationdate, completiondate, postpone, notes) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
       [uuid.v4(),data.task,year,month,undefined,0,0,true,undefined,null,undefined,taskCreationdate,undefined,0,undefined],
       (txtObj,resultSet)=> {    
-        existingTasks.push({ id: uuid.v4(), task: data.task, year:year, month:month, day:undefined, taskState:0, recurring:0, 
+        existingTasks.push({ id: uuid.v4(), task: data.task, year:year, month:month, day:undefined, state:0, recurring:0, 
           monthly:true, track:undefined, time:null, section: undefined,
           creationdate: taskCreationdate, completiondate: undefined, postpone: 0, notes: undefined});
         setTasks(existingTasks);
@@ -326,6 +326,8 @@ export default function MonthlyTasks({db, tracks, setTracks, year, month, tasks,
         pageDate={undefined}
         tracksScreen={false}
         monthly={true}
+        selectedTrack={selectedTrack}
+        setSelectedTrack={setSelectedTrack}
       />
     </Pressable>
   );

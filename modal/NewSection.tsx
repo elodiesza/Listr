@@ -39,12 +39,13 @@ function NewSection({db, sections, setSections, track, newSectionVisible, setNew
       onBackdropPress={() => {
         setNewSectionVisible(false);
         setValue('');
+        reset();
       }}
       backdropColor='white'
       avoidKeyboard={true}
       style={{margin: 0,justifyContent:'flex-end',alignItems:'center', width:width}}
     > 
-      <TouchableOpacity onPressOut={() => {setValue('');setNewSectionVisible(false);}} activeOpacity={1}>
+      <TouchableOpacity onPressOut={() => {setValue('');setNewSectionVisible(false); reset();}} activeOpacity={1}>
         <TouchableWithoutFeedback>
             <View style={[container.newModal,{flexDirection:'row',alignItems:'flex-start', justifyContent:'center'}]}>
                <Controller

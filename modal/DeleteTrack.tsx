@@ -9,7 +9,7 @@ function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, set
 
 
   const DeleteTrackDB = () => {
-    const id = tracks.filter((c) => c.track == selectedTrack).map((c) => c.id)[0];
+    const id = tracks.filter((c) => c.name == selectedTrack).map((c) => c.id)[0];
     db.transaction(
         (tx) => {
         tx.executeSql(
@@ -51,7 +51,6 @@ function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, set
             if (resultSet.rowsAffected > 0) {
                 let existingTracks = [...tracks].filter((c) => c.id !== id);
                 setTracks(existingTracks);
-                setSelectedTrack(existingTracks.map(c=>c.track)[0]);
             }
             },
             (txObj, error) => console.log(error)
