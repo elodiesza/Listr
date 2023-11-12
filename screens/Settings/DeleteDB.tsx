@@ -9,7 +9,7 @@ import Color from '../../components/Color';
 import DeleteDBvalid from '../../modal/DeleteDBvalid';
 
 const DeleteDB = ({db, tasks, setTasks, tracks, setTracks, sections, setSections,
-    statuslist, setStatuslist, statusrecords, setStatusrecords,logs, setLogs, setmLogs, progress, setProgress}) => {
+    statuslist, setStatuslist, statusrecords, setStatusrecords,logs, setLogs, setmLogs, sliders, setSliders}) => {
 
     const navigation = useNavigation();
     const onReturnPressed =()=> {navigation.dispatch(CommonActions.goBack())};
@@ -43,10 +43,10 @@ const DeleteDB = ({db, tasks, setTasks, tracks, setTracks, sections, setSections
                     <Text style={{marginLeft:10, flex:1}}>Sections</Text>
                     <Color color={(sections==undefined || sections.length==0)?colors.primary.white:colors.primary.purple}/>
                 </Pressable>
-                <Pressable style={container.setting} onPress={()=>{setSelectedData('progress');setDeleteVisible(true)}}>  
+                <Pressable style={container.setting} onPress={()=>{setSelectedData('sliders');setDeleteVisible(true)}}>  
                     <Entypo name="progress-two" size={25}/>
-                    <Text style={{marginLeft:10, flex:1}}>Progress bars</Text>
-                    <Color color={(progress==undefined || progress.length==0)?colors.primary.white:colors.primary.purple}/>
+                    <Text style={{marginLeft:10, flex:1}}>sliders bars</Text>
+                    <Color color={(sliders==undefined || sliders.length==0)?colors.primary.white:colors.primary.purple}/>
                 </Pressable>
                 <Pressable style={container.setting} onPress={()=>{setSelectedData('statuslist');setDeleteVisible(true)}}>  
                     <Entypo name="progress-full" size={25}/>
@@ -58,7 +58,7 @@ const DeleteDB = ({db, tasks, setTasks, tracks, setTracks, sections, setSections
                     <Text style={{marginLeft:10, flex:1}}>Status records</Text>
                     <Color color={(statusrecords==undefined || statusrecords.length==0)?colors.primary.white:colors.primary.purple}/>
                 </Pressable> 
-                <DeleteDBvalid db={db} setTasks={setTasks} setTracks={setTracks} setProgress={setProgress} setSections={setSections}
+                <DeleteDBvalid db={db} setTasks={setTasks} setTracks={setTracks} setSliders={setSliders} setSections={setSections}
                  setStatusrecords={setStatusrecords} setLogs={setLogs} setmLogs={setmLogs} setStatuslist={setStatuslist} 
                 selectedData={selectedData} deleteVisible={deleteVisible} setDeleteVisible={setDeleteVisible}/>
             </View>

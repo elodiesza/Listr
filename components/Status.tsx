@@ -8,7 +8,6 @@ const width = Dimensions.get('window').width;
 
 function Status({db, name, list, statuslist, statusrecords, setStatusrecords, number, id, editIndex, setEditIndex, index, section, selectedSection, setSelectedSection}) {
 
-
   const [status, setStatus] = useState(statuslist.filter(c=>c.name==list).map(c=>c.item)[number]);
   const [color, setColor] = useState(statuslist.filter(c=>c.name==list).map(c=>c.color)[number]);
   const lastnumber = statuslist.filter(c=>c.name==list).map(c=>c.number).length-1;
@@ -45,7 +44,7 @@ function Status({db, name, list, statuslist, statusrecords, setStatusrecords, nu
         tx.executeSql('UPDATE statusrecords SET name = ? WHERE id = ?', [statusInput, id],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-              existingStatus[indexToUpdate].task = statusInput;
+              existingStatus[indexToUpdate].name = statusInput;
               setStatusrecords(existingStatus);
             }
           },
@@ -53,12 +52,13 @@ function Status({db, name, list, statuslist, statusrecords, setStatusrecords, nu
         );
       });
       setEditIndex(-1);
+      setStatusInput('');
   };
 
   return (
-    <View style={{flexDirection:'row',backgroundColor:colors.primary.white,width:width*0.9, height:40,flex:1, alignItems:'center'}}>
-      <Pressable onLongPress={()=>{setEditIndex(index);setSelectedSection(section);}} style={{flex:6, display: (editIndex==index && selectedSection==section)?'none':'flex'}}>
-        <Text style={{flex:1,marginLeft:10}}>{name}</Text> 
+    <View style={container.taskcontainer}>
+      <Pressable onLongPress={()=>{setEditIndex(index);setSelectedSection(section);}} style={{flex:1,display:(editIndex==index && selectedSection==section)?'none':'flex'}}>
+        <Text>{name}</Text> 
       </Pressable>
       {editIndex==index && selectedSection==section &&
           <Pressable style={{flex:1, flexDirection:'row', alignItems:'center'}}>   

@@ -4,12 +4,10 @@ import * as SQLite from 'expo-sqlite';
 
 const useDatabase = () => {
   const [db,setDb] = useState(SQLite.openDatabase('todo.db'));
-  const [isLoading, setIsLoading] = useState(true);
-  const [load, loadx] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [tracks, setTracks] = useState([]);
   const [sections, setSections] = useState([]);
-  const [progress, setProgress] = useState([]);
+  const [sliders, setSliders] = useState([]);
   const [statuslist, setStatuslist] = useState([]);
   const [statusrecords, setStatusrecords] = useState([]);
   const [logs, setLogs] = useState([]);
@@ -18,10 +16,9 @@ const useDatabase = () => {
 
 
   useEffect(() => {
-    setIsLoading(true);
 
     db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS tracks (id TEXT PRIMARY KEY, track TEXT, color TEXT, UNIQUE(track))')
+      tx.executeSql('CREATE TABLE IF NOT EXISTS tracks (id TEXT PRIMARY KEY, name TEXT, color TEXT, UNIQUE(name))')
     });
     db.transaction(tx => {
       tx.executeSql('SELECT * FROM tracks', null,
@@ -30,7 +27,7 @@ const useDatabase = () => {
       );
     });
     db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, task TEXT, year INTEGER, month INTEGER, day INTEGER, taskState INTEGER, recurring INTEGER, monthly BOOLEAN, track TEXT, time TEXT, section TEXT, UNIQUE(task,year,month,day))')
+      tx.executeSql('CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, task TEXT, year INTEGER, month INTEGER, day INTEGER, state INTEGER, recurring BOOLEAN, monthly BOOLEAN, track TEXT, time TEXT, section TEXT, creationdate TEXT, completiondate TEXT, postpone INTEGER, notes TEXT, UNIQUE(task,year,month,day))')
     });
     db.transaction(tx => {
       tx.executeSql('SELECT * FROM tasks', null,
@@ -40,7 +37,7 @@ const useDatabase = () => {
     });
 
     db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS sections (id TEXT PRIMARY KEY, section TEXT, track TEXT, UNIQUE(section,track))')
+      tx.executeSql('CREATE TABLE IF NOT EXISTS sections (id TEXT PRIMARY KEY, name TEXT, track TEXT, UNIQUE(name,track))')
     });
     db.transaction(tx => {
       tx.executeSql('SELECT * FROM sections', null,
@@ -50,12 +47,12 @@ const useDatabase = () => {
     });
  
     db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS progress (id TEXT PRIMARY KEY, name TEXT, track TEXT, list TEXT, progress INTEGER, rate INTEGER)')
+      tx.executeSql('CREATE TABLE IF NOT EXISTS sliders (id TEXT PRIMARY KEY, name TEXT, track TEXT, section TEXT, sliders INTEGER, rate INTEGER)')
     });
     db.transaction(tx => {
-      tx.executeSql('SELECT * FROM progress', null,
-      (txObj, resultSet14) => setProgress(resultSet14.rows._array),
-      (txObj, error) => console.log('error selecting progress')
+      tx.executeSql('SELECT * FROM sliders', null,
+      (txObj, resultSet14) => setSliders(resultSet14.rows._array),
+      (txObj, error) => console.log('error selecting sliders')
       );
     });
 
@@ -106,31 +103,25 @@ const useDatabase = () => {
       (txObj, error) => console.log('error selecting settings')
       );
     });
-
-    setIsLoading(false);
   
-  },[load]);
+  },[]);
 
   return {
-    isLoading,
     tasks,
     tracks,
-    load,
     db,
     sections,
-    progress,
+    sliders,
     statuslist,
     statusrecords,
     logs,
     mlogs,
     settings,
-    loadx,
     setTasks,
     setTracks,
     setDb,
-    setIsLoading,
     setSections,
-    setProgress,
+    setSliders,
     setStatuslist,
     setStatusrecords,
     setLogs,

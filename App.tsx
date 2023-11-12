@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Monthly from './screens/Monthly';
 import Settings from './screens/Settings';
-import Today from './screens/TodayTab';
+import Today from './screens/Today';
 import Tracks from './screens/Tracks';
 import Feather from '@expo/vector-icons/Feather';
 import { SimpleLineIcons } from '@expo/vector-icons';
@@ -21,20 +21,18 @@ function App() {
   const {
     tracks,
     tasks,
-    load,
     db,
     sections,
-    progress,
+    sliders,
     statuslist,
     statusrecords,
     logs,
     mlogs,
     settings,
-    loadx,
     setTracks,
     setTasks,
     setSections,
-    setProgress,
+    setSliders,
     setStatuslist,
     setStatusrecords,
     setLogs,
@@ -47,7 +45,7 @@ function App() {
 
   const [selectedTab, setSelectedTab] = useState('Today');
   const [selectedTrack, setSelectedTrack] = useState(selectedTab=='Tracks'?'UNLISTED':'all');
-  const [selectedTrackColor, setSelectedTrackColor] = useState(selectedTrack==undefined? colors.primary.default:tracks.filter(c=>c.track==selectedTrack).map(c=>c.color)[0]);
+  const [selectedTrackColor, setSelectedTrackColor] = useState(selectedTrack==undefined? colors.primary.default:tracks.filter(c=>c.name==selectedTrack).map(c=>c.color)[0]);
 
   const [date, setDate] = useState(new Date());
   const today = new Date();
@@ -56,7 +54,7 @@ function App() {
   const day = today.getDate();
 
 
-  const number = tasks.filter(c=>(c.year==year && c.month==month && c.day==day && c.taskState==0)).length;
+  const number = tasks.filter(c=>(c.year==year && c.month==month && c.day==day && c.state==0)).length;
 
   useEffect(() => {
     setSelectedTrack(selectedTab=='Tracks'?'UNLISTED':'all');
@@ -78,7 +76,7 @@ function App() {
         tracks={tracks} setTracks={setTracks} db={db}
         sections={sections} setSections={setSections}
         tasks={tasks} setTasks={setTasks}
-        progress={progress} setProgress={setProgress}
+        sliders={sliders} setSliders={setSliders}
         statuslist={statuslist} setStatuslist={setStatuslist}
         statusrecords={statusrecords} setStatusrecords={setStatusrecords}
         settings={settings} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack}/>} 
@@ -93,7 +91,6 @@ function App() {
         <Tab.Screen name="Monthly" children={()=><Monthly db={db} tracks={tracks} 
           tasks={tasks} setTasks={setTasks} 
           setTracks={setTracks} 
-          load={load} loadx={loadx} 
           settings={settings}
           mlogs={mlogs} setmLogs={setmLogs}
           date={date} setDate={setDate}
@@ -107,7 +104,7 @@ function App() {
         <Tab.Screen name="Today" children={()=><Today db={db} 
         tasks={tasks} setTasks={setTasks} 
         tracks={tracks} setTracks={setTracks} 
-        load={load} loadx={loadx}
+        selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack}
         sections={sections}
         settings={settings}
         logs={logs} setLogs={setLogs}
@@ -148,11 +145,12 @@ function App() {
         setTasks={setTasks}
         tracks={tracks}
         track={selectedTrack}
+        selectedTrack={selectedTrack}
+        setSelectedTrack={setSelectedTrack}
         section={undefined}
         pageDate={date}
         tracksScreen={selectedTab=='Tracks'?true:false}
         monthly={selectedTab=='Monthly'?true:false}
-        selectedTab={selectedTab}
       />
       <NewTrack 
         db={db} 

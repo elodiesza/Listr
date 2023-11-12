@@ -6,7 +6,7 @@ import CalendarDate from '../modal/CalendarDate';
 
 const width = Dimensions.get('window').width;
 
-export default function Calendar({year, month, tasks, tracks, db}) {
+export default function Calendar({year, month, tasks, tracks, db, selectedTrack}) {
   const insets = useSafeAreaInsets();
   const height = Dimensions.get('window').height - insets.top - insets.bottom; 
 
@@ -96,7 +96,7 @@ export default function Calendar({year, month, tasks, tracks, db}) {
 
   const CalendarCell = (date) => {
     return(
-      <View style={[styles.calendarCell,{backgroundColor: date==0? 'lightgray' : 'white', borderColor: (date==thisDay && month==thisMonth && year==thisYear)? colors.primary.purple:colors.pale.black, borderWidth: (date==thisDay && month==thisMonth && year==thisYear)? 2:0.5}]}>
+      <View style={[styles.calendarCell,{backgroundColor: date==0? colors.pale.gray : colors.primary.white, borderColor: (date==thisDay && month==thisMonth && year==thisYear)? colors.primary.purple:colors.primary.gray, borderWidth: (date==thisDay && month==thisMonth && year==thisYear)? 2:0.4}]}>
         <View style={{height:15, flexDirection:'row', justifyContent:'flex-end'}}>
           <Pressable onPress={()=>{setCalendarDate(date);setModalVisible(true);}}>
             <Text style={{fontFamily:'AvenirNextCondensed-Regular',textAlign:'right', textAlignVertical:'top', marginRight:3, opacity: date==0? 0 : 1}}>{date}</Text>
@@ -104,7 +104,7 @@ export default function Calendar({year, month, tasks, tracks, db}) {
         </View>
         <View style={{justifyContent: 'flex-end',flex:1}}>
           <FlatList 
-          data={monthTodo(tasks.filter(c=>c.recurring==0), year, month, date)}
+          data={monthTodo((selectedTrack=='∞' || selectedTrack=='☀')?tasks.filter(c=>c.recurring==0):tasks.filter(c=>(c.recurring==0 && c.track==selectedTrack)), year, month, date)}
           horizontal={false} 
           scrollEnabled={true} 
           renderItem={RenderTaskItem} 
@@ -123,7 +123,7 @@ export default function Calendar({year, month, tasks, tracks, db}) {
             keyExtractor={item => item.id}
             horizontal={true}
             bounces={false}
-            contentContainerStyle={{height:(height-150-3)/7}}
+            contentContainerStyle={{height:(height-200-3)/7}}
           />  
 
     )
@@ -131,13 +131,13 @@ export default function Calendar({year, month, tasks, tracks, db}) {
 
   const CalendarTaskItem = ({task, track, date}) => (
     <>
-      <TouchableOpacity onPress={()=>{setCalendarDate(date);setModalVisible(true);}} style={[styles.task,{backgroundColor: tracks.filter(c=>c.track==track).map(c=>c.color)[0]}]}>
+      <TouchableOpacity onPress={()=>{setCalendarDate(date);setModalVisible(true);}} style={[styles.task,{backgroundColor: tracks.filter(c=>c.name==track).map(c=>c.color)[0]}]}>
         <Text style={{fontSize:10}}>{task}</Text>
       </TouchableOpacity>
     </>
   );
   const RenderTaskItem = ({item}) => (
-    <CalendarTaskItem task={item.task} track={item.track} date={item.day} />
+    <CalendarTaskItem task={item.task} track={item.track} date={item.day}/>
   );
 
   return (
@@ -153,7 +153,7 @@ export default function Calendar({year, month, tasks, tracks, db}) {
                     )}
                     keyExtractor={item => item.id}
                     horizontal={true}
-                    contentContainerStyle={{backgroundColor:colors.pale.purple,borderBottomColor:colors.primary.defaultdark, borderBottomWidth: 1,borderTopLeftRadius:20,borderTopRightRadius:20}}
+                    contentContainerStyle={{backgroundColor:colors.pale.purple,borderBottomColor:colors.primary.defaultdark, borderBottomWidth: 1, borderTopColor:colors.primary.black, borderTopWidth: 0.5}}
                 />
             </View>
             <FlatList
@@ -172,15 +172,15 @@ const styles = StyleSheet.create({
   calendarCell: {
     alignContent: 'center',
     justifyContent: 'center',
-    backgroundColor: 'white',
+    backgroundColor: colors.primary.white,
     width: width*0.9/7,
     flex:1/7,
   },
   task: {
-    width: width*0.9/7-1,
+    width: width*0.9/7-0.8,
     height: 14,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: colors.primary.gray,
     borderRadius: 2,
   }
 });

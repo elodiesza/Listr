@@ -16,12 +16,12 @@ function NewSection({db, sections, setSections, track, newSectionVisible, setNew
         let existingsections = [...sections]; 
             db.transaction((tx) => {
                 tx.executeSql(
-                  'INSERT INTO sections (id,section, track) VALUES (?,?, ?)',
+                  'INSERT INTO sections (id,name, track) VALUES (?,?, ?)',
                   [ uuid.v4(),data.name, track],
                   (txtObj, stateResultSet) => {
                     const newState = {
                       id: uuid.v4(),
-                      section: data.name,
+                      name: data.name,
                       track: track,
                     };
                     existingsections.push(newState);

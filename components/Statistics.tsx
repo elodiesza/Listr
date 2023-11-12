@@ -1,26 +1,43 @@
 import { FlatList, TextInput, TouchableOpacity, Button, Text, View, Dimensions, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
-import { container, colors } from '../../styles';
-import {StackedBarChart, LineChart, PieChart} from 'react-native-chart-kit';
-import PieChartView from '../../components/PieChartView';
+import { container, colors } from '../styles';
+import {StackedBarChart} from 'react-native-chart-kit';
+import PieChartView from './PieChartView';
 
 const width = Dimensions.get('window').width;
 
-function AnalyticsHome({db, tasks, tracks, year, month}) {
+function AnalyticsHome({tasks, selectedTrack, year, month}) {
     
-
-
-    const [selectedTrack, setSelectedTrack] = useState('∞');
+    const today = new Date();
+    const thisYear = today.getFullYear();
+    const thisMonth = today.getMonth();
+    const thisDay = today.getDate();
+    const DaysInMonth = (month,year) => {
+        return new Date(year, month+1, 0).getDate();
+    }
+    
     const taskCount= ChosenTrackData(selectedTrack).filter(c=>(c.year==year && c.month==month)).length;
-    const completedTasks = ChosenTrackData(selectedTrack).filter(c => (c.taskState==2 && c.year==year && c.month==month)).length;
+    const completedTasks = ChosenTrackData(selectedTrack).filter(c => (c.state==2 && c.year==year && c.month==month)).length;
     const recurringdailyTasks = ChosenTrackData(selectedTrack).filter(c => (c.recurring==1 && c.year==year && c.month==month && c.monthly==false)).length;
-    const completedrecurringdailyTasks = ChosenTrackData(selectedTrack).filter(c => (c.taskState==2 && c.recurring==1 && c.year==year && c.month==month && c.monthly==false)).length;
+    const completedrecurringdailyTasks = ChosenTrackData(selectedTrack).filter(c => (c.state==2 && c.recurring==1 && c.year==year && c.month==month && c.monthly==false)).length;
+    const numberRecurringDailyTasks = ChosenTrackData(selectedTrack).filter(c => (c.recurring==1 && c.year==year && c.month==month && c.day==(year==thisYear && month==thisMonth)? thisDay: DaysInMonth(month,year) && c.monthly==false)).length;
+    
+    const monthlyScore =()=>{
+        let score = 0;
+        for (let i=1; i<DaysInMonth(month,year)+1; i++) {
+            let thisdayTaskCount = ChosenTrackData(selectedTrack).filter(c=>(c.year==year && c.month==month &&c.day==i)).length;
+            let completionrate = thisdayTaskCount==0?0:(100*(ChosenTrackData(selectedTrack).filter(c=>(c.year==year && c.month==month &&c.day==i)).filter(c=>c.state==2).length*2+ChosenTrackData(selectedTrack).filter(c=>(c.year==year && c.month==month &&c.day==i)).filter(c=>c.state==1).length)/(ChosenTrackData(selectedTrack).filter(c=>(c.year==year && c.month==month &&c.day==i)).length*2));
+            score = score + ((thisdayTaskCount==0||completionrate==0)?0:(100*Math.log(ChosenTrackData(selectedTrack).filter(c=>(c.year==year && c.month==month &&c.day==i)).filter(c=>c.state==2).length*2+ChosenTrackData(selectedTrack).filter(c=>(c.year==year && c.month==month &&c.day==i)).filter(c=>c.state==1).length)/Math.log(ChosenTrackData(selectedTrack).filter(c=>(c.year==year && c.month==month &&c.day==i)).length*2)));
+        }
+        return score.toFixed(0);
+    }
+
 
     const tasksData = () => {
         let data = [];
         for (let i=1; i<=31; i++) {
             let count = ChosenTrackData(selectedTrack).filter(c => (c.day==i && c.year==year && c.month==month)).length;
-            let completed = ChosenTrackData(selectedTrack).filter(c => (c.taskState==2 && c.day==i && c.year==year && c.month==month)).length;
+            let completed = ChosenTrackData(selectedTrack).filter(c => (c.state==2 && c.day==i && c.year==year && c.month==month)).length;
             data.push({day:i, count:count, completed:completed, color:colors.primary.default});
         }
         return data;
@@ -42,7 +59,6 @@ function AnalyticsHome({db, tasks, tracks, year, month}) {
         return transposedData;
     }
 
-
     function ChosenTrackData(pick) {
         if (pick=='∞') {
             return tasks;
@@ -55,23 +71,9 @@ function AnalyticsHome({db, tasks, tracks, year, month}) {
         }
     }
 
-  return (
-    <View style={{flex:1,justifyContent:'flex-start',alignItems:'center'}}>
-        <FlatList
-            data={[{'track':'∞','color':'#ffffff'},{'track':'☀','color':'#D3DDDF'},...new Set(tracks)]}
-            renderItem={({item}) => (
-                <Pressable onPress={()=>setSelectedTrack(item.track)} style={[container.color,{borderColor:selectedTrack==item.track?colors.primary.purple:colors.primary.gray, borderWidth:selectedTrack==item.track?2:1, backgroundColor:item.color}]}>
-                    <Text>{item.track[0]}</Text>
-                </Pressable>
-            )}
-            keyExtractor={item => item.id}
-            horizontal={true}
-            contentContainerStyle={{height:20}}
-        />
-        <View style={{height:40}}>
-            <Text style={container.headertitle}>{selectedTrack=='☀'?'Daily ☀':selectedTrack}</Text>
-        </View>
-        <View style={{flex:10, width:'90%'}}>
+    return (
+        <View style={{width:width*0.9,justifyContent:'center',alignItems:'center', borderTopColor:colors.primary.black, borderTopWidth:0.5}}>
+            <View style={{alignItems:'center',backgroundColor:colors.pale.defaultdark,height:5,width:width*0.9}}/>
             <View style={container.statblock}>
                 <View style={{alignItems:'center',height:90}}>
                     <Text style={container.headerdate}>Recorded tasks</Text>
@@ -129,20 +131,16 @@ function AnalyticsHome({db, tasks, tracks, year, month}) {
             </View>
             <View style={container.statblock}>
                 <View style={{alignItems:'center'}}>
-                    <Text style={container.headerdate}>Recurring daily</Text>
-                    <Text style={container.headerdate}>tasks</Text>
-                    <Text style={container.keyNumber}>{recurringdailyTasks}</Text>
+                    <Text style={container.headerdate}>Percentage of recurring</Text>
+                    <Text style={container.headerdate}>daily tasks completion</Text>
+                    <Text style={container.keyNumber}>{recurringdailyTasks==0?'- ':(completedrecurringdailyTasks*100/recurringdailyTasks).toFixed(0)}%</Text>
                 </View>
                 <View style={{alignItems:'center'}}>
-                    <Text style={container.headerdate}>Completed recurring</Text>
-                    <Text style={container.headerdate}>daily tasks</Text>
-                    <Text style={[container.keyNumber,{display: recurringdailyTasks==0?'none':'flex'}]}>{(completedrecurringdailyTasks*100/recurringdailyTasks).toFixed(0)}%</Text>
+                    <Text style={container.headerdate}>Productivity score</Text>
+                    <Text style={container.keyNumber}>{monthlyScore()}</Text>
                 </View>
-
             </View>
         </View>
-        
-    </View>
-  );
+    );
 }
 export default AnalyticsHome;

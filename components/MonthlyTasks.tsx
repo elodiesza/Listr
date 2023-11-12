@@ -1,4 +1,4 @@
-import { Keyboard,Animated, Easing, TextInput, Pressable, Text, View, Dimensions } from 'react-native';
+import { Keyboard,Animated, FlatList, Easing, TextInput, Pressable, Text, View, Dimensions } from 'react-native';
 import { useState,useEffect, useRef } from 'react';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { Feather } from '@expo/vector-icons';
@@ -11,7 +11,7 @@ import { useForm, Controller, set } from 'react-hook-form';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, month, tasks, setTasks, mlogs, setmLogs}) {
+export default function MonthlyTasks({db, tracks, setTracks, year, month, tasks, setTasks, mlogs, setmLogs}) {
   
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const openKeyboardAnimationValue = new Animated.Value(0);
@@ -33,6 +33,9 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
           openRowRef.current = null;
       }
   };
+  useEffect(() => {
+    Keyboard.dismiss();
+  }, [tasks]);
   
     const startOpenAnimation = () => {
       Animated.timing(openKeyboardAnimationValue, {
@@ -77,6 +80,9 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
 
   const today = new Date();
   const thisDay = today.getDate();
+  const thisMonth = today.getMonth();
+  const thisYear = today.getFullYear();
+  const taskCreationdate =  (year==thisYear && month== thisMonth)? new Date(thisYear,thisMonth,thisDay) : new Date(year,month,1);
   const [isLoading, setIsLoading] = useState(true);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const {control, handleSubmit, reset} = useForm();
@@ -89,7 +95,6 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
     months += d2.getMonth();
     return months <= 0 ? 0 : months;
   }
-
 
   useEffect (()=>{
     setLogsLoading(false)
@@ -122,16 +127,20 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
             let tasktocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.recurring==1 && c.monthly==true))[i].task;
             let tracktocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.recurring==1 && c.monthly==true))[i].track;
             let timetocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.recurring==1 && c.monthly==true))[i].time;
+            let notestocopy = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.recurring==1 && c.monthly==true))[i].notes;
             for (var j=1;j<dategap+1;j++) {
               let newyear = new Date(lastyear,lastmonth+j).getFullYear();
               let newmonth = new Date(lastyear,lastmonth+j).getMonth();
+              let postponeIncrement = tasks.filter(c=>(c.year==lastyear && c.month==lastmonth && c.recurring==1 && c.monthly==true)).map(c=>c.postpone)[i]+j;
               let existingTasks = [...tasks];
               db.transaction((tx) => {
-                tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
-                [uuid.v4(),tasktocopy,newyear,newmonth,undefined,0,1,true,tracktocopy,timetocopy,undefined],
+                tx.executeSql('INSERT INTO tasks (id,task,year,month,day,state,recurring, monthly, track, time, section, creationdate,completiondate,postpone,notes) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                [uuid.v4(),tasktocopy,newyear,newmonth,undefined,0,1,true,tracktocopy,timetocopy,undefined,
+                new Date(year,month,1),undefined,postponeIncrement,notestocopy],
                 (txtObj,resultSet)=> {    
                   existingTasks.push({ id: uuid.v4(), task: tasktocopy, year:newyear, month:newmonth, day:undefined, taskState:0, recurring:1, 
-                    monthly:true, track:tracktocopy, time:timetocopy, section: undefined});
+                    monthly:true, track:tracktocopy, time:timetocopy, section: undefined,
+                    creationdate: new Date(year,month,1), completiondate: undefined, postpone: postponeIncrement, notes: notestocopy});
                 },
                 (txtObj, error) => console.warn('Error inserting data:', error)
                 );
@@ -217,31 +226,25 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
   const addTask = async (data) => {
     let existingTasks = [...tasks]; 
     db.transaction((tx) => {
-      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
-      [uuid.v4(),data.task,year,month,undefined,0,0,true,undefined,null,undefined],
+      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,state,recurring, monthly, track, time, section, creationdate, completiondate, postpone, notes) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      [uuid.v4(),data.task,year,month,undefined,0,0,true,undefined,null,undefined,taskCreationdate,undefined,0,undefined],
       (txtObj,resultSet)=> {    
         existingTasks.push({ id: uuid.v4(), task: data.task, year:year, month:month, day:undefined, taskState:0, recurring:0, 
-          monthly:true, track:undefined, time:null, section: undefined});
+          monthly:true, track:undefined, time:null, section: undefined,
+          creationdate: taskCreationdate, completiondate: undefined, postpone: 0, notes: undefined});
         setTasks(existingTasks);
       },
       (txtObj, error) => console.warn('Error inserting data:', error)
       );
     });
     reset();
-    loadx(!load);
   };
-
 
   const dailyData = tasks.filter(c=>(c.year==year && c.month==month && c.monthly==true));
 
   return (
       <Pressable style={[container.body]}  onPress={handleClickOutside}>
         <View style={container.block}>
-          <View style={container.tab}>
-            <Text style={container.tabtext}>
-              MONTHLY
-            </Text>
-          </View>
           <Animated.View
             style={[
               container.listblock,
@@ -262,10 +265,10 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
             <SwipeListView 
               data={dailyData} 
               scrollEnabled={true} 
-              renderItem={({ item, index }) => <Task db={db} tasks={tasks} setTasks={setTasks} tracks={tracks} setTracks={setTracks} 
-              sections={undefined} date={new Date(year,month,1)} task={item.task} taskState={item.taskState} id={item.id} track={undefined} 
-              time={undefined} section={undefined} trackScreen={false} archive={false} recurring={item.recurring} tabcolor={undefined} 
-              monthly={true} year={item.year} month={item.monthly} day={item.day}
+              renderItem={({ item, index }) => <Task db={db} tasks={tasks} setTasks={setTasks}  
+              date={new Date(year,month,1)} task={item.task} state={item.state} id={item.id}
+              time={undefined} section={undefined} trackScreen={false} recurring={item.recurring} tabcolor={undefined} 
+              monthly={true} year={item.year} month={item.monthly} day={item.day} track={item.track}
               editIndex={editIndex} setEditIndex={setEditIndex} index={index}/>} 
               renderHiddenItem={({ item }) => <DeleteItem id={item.id} />} 
               bounces={false} 
@@ -309,7 +312,6 @@ export default function MonthlyTasks({db, load, loadx, tracks, setTracks, year, 
                 <Feather name="plus-circle" size={20} color={colors.primary.purple} style={{right:10}}/>
               </Pressable>
             </View>
-
           </Animated.View>
         </View>
       <NewTask

@@ -8,18 +8,18 @@ import { Feather,Ionicons } from '@expo/vector-icons';
 
 const width = Dimensions.get('window').width;
 
-function NewProgress({addModalVisible, setAddModalVisible, db, progress, setProgress, section, track}) {
+function NewSlider({addModalVisible, setAddModalVisible, db, sliders, setSliders, section, track}) {
   
   const {control, handleSubmit, reset} = useForm();
 
 
-  const addProgress = async (data) => {
-    let existingProgress = [...progress]; 
+  const addSlider = async (data) => {
+    let existingsliders = [...sliders]; 
         db.transaction((tx) => {
-          tx.executeSql('INSERT INTO progress (id, name, track, list, progress, rate) values (?,?,?,?,?,?)',[ uuid.v4(),data.name, track, section, 0,0],
+          tx.executeSql('INSERT INTO sliders (id, name, track, section, sliders, rate) values (?,?,?,?,?,?)',[ uuid.v4(),data.name, track, section, 0,0],
           (txtObj,resultSet)=> {    
-            existingProgress.push({ id: uuid.v4(), name: data.name, track: track, list: section, progress: 0, rate: 0});
-            setProgress(existingProgress);
+            existingsliders.push({ id: uuid.v4(), name: data.name, track: track, section: section, sliders: 0, rate: 0});
+            setSliders(existingsliders);
           },
           (txtObj, error) => console.warn('Error inserting data:', error)
           );
@@ -46,7 +46,7 @@ function NewProgress({addModalVisible, setAddModalVisible, db, progress, setProg
         activeOpacity={1}>
         <TouchableWithoutFeedback>
           <View style={[container.newModal,{padding:5}]}>
-            <Text>Add a new progress bar to {section}</Text>
+            <Text>Add a new sliders bar to {section}</Text>
             <View style={{flexDirection:'row'}}>
               <Controller
                 control= {control}
@@ -66,7 +66,7 @@ function NewProgress({addModalVisible, setAddModalVisible, db, progress, setProg
                   </View>
                 )}
                 rules={{
-                  required: 'Input a name for your progress bar',
+                  required: 'Input a name for your sliders bar',
                   minLength: {
                     value: 3,
                     message: 'Task should be at least 3 characters long',
@@ -77,7 +77,7 @@ function NewProgress({addModalVisible, setAddModalVisible, db, progress, setProg
                   },
                 }}
               />
-              <Pressable onPress={handleSubmit(addProgress)} style={{backgroundColor: colors.primary.purple, justifyContent:'center',height:40, width:40, alignItems:'center'}}>
+              <Pressable onPress={handleSubmit(addSlider)} style={{backgroundColor: colors.primary.purple, justifyContent:'center',height:40, width:40, alignItems:'center'}}>
                 <Ionicons name='send' size={18} color={colors.primary.white}/>
               </Pressable>
             </View>
@@ -88,5 +88,5 @@ function NewProgress({addModalVisible, setAddModalVisible, db, progress, setProg
   );
 };
 
-export default NewProgress;
+export default NewSlider;
 

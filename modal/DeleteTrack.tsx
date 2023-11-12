@@ -5,11 +5,11 @@ import Modal from 'react-native-modal';
 
 const width = Dimensions.get('window').width;
 
-function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, setTracks, selectedTab, setSelectedTab, sections, setSections, tasks, setTasks}) {
+function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, setTracks, selectedTrack, setSelectedTrack, sections, setSections, tasks, setTasks}) {
 
 
   const DeleteTrackDB = () => {
-    const id = tracks.filter((c) => c.track == selectedTab).map((c) => c.id)[0];
+    const id = tracks.filter((c) => c.track == selectedTrack).map((c) => c.id)[0];
     db.transaction(
         (tx) => {
         tx.executeSql(
@@ -17,7 +17,7 @@ function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, set
             [id],
             (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-                let existingSections = [...sections].filter((c) => c.track !== selectedTab);
+                let existingSections = [...sections].filter((c) => c.track !== selectedTrack);
                 setSections(existingSections);
             }
             },
@@ -33,7 +33,7 @@ function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, set
             [id],
             (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-                let existingTasks = [...tasks].filter((c) => c.track !== selectedTab);
+                let existingTasks = [...tasks].filter((c) => c.track !== selectedTrack);
                 setTasks(existingTasks);
             }
             },
@@ -51,14 +51,14 @@ function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, set
             if (resultSet.rowsAffected > 0) {
                 let existingTracks = [...tracks].filter((c) => c.id !== id);
                 setTracks(existingTracks);
-                setSelectedTab(existingTracks.map(c=>c.track)[0]);
+                setSelectedTrack(existingTracks.map(c=>c.track)[0]);
             }
             },
             (txObj, error) => console.log(error)
         );
         }
     );
-    setSelectedTab('UNLISTED');
+    setSelectedTrack('UNLISTED');
     setDeleteTrackVisible(false);
 };
 
@@ -80,7 +80,7 @@ function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, set
                     <Pressable onPress={() => setDeleteTrackVisible(!deleteTrackVisible)}>
                         <MaterialIcons name="keyboard-arrow-left" size={25} color={colors.primary.blue}/>
                     </Pressable>
-                    <Text style={{left:20, flexWrap:'wrap'}}>Delete {selectedTab} and its sections/tasks definitely ?</Text>
+                    <Text style={{left:20, flexWrap:'wrap'}}>Delete {selectedTrack} and its sections/tasks definitely ?</Text>
                 </View>
                 <Pressable onPress={()=>DeleteTrackDB()} style={[container.button,{flexDirection:'row', alignItems:'center',justifyContent:'center',height:40, width:150, marginRight:5}]}>
                     <Text> DELETE </Text>

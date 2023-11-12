@@ -8,20 +8,17 @@ import uuid from 'react-native-uuid';
 import { useForm, Controller, set } from 'react-hook-form';
 
 
-const width = Dimensions.get('window').width;
-
-function Task({db, tasks, setTasks, date,task, taskState, id , time, section, trackScreen, recurring, tabcolor, monthly, year, month, day, editIndex, setEditIndex, index, selectedSection, setSelectedSection}) {
+function Task({db, tasks, setTasks, date,task, state, id , time, section, trackScreen, recurring, tabcolor, monthly, year, month, day, editIndex, setEditIndex, index, selectedSection, setSelectedSection, track}) {
   
   const {control, handleSubmit, reset} = useForm();
   const [taskInput, setTaskInput] = useState(task);
-
   const today= new Date();
   const todayDate = moment(today).format("YY-MM-DD");
   const tomorrowDate = moment(new Date(today.setDate(today.getDate()+1))).format("YY-MM-DD");
   const dateDate = moment(date).format("YY-MM-DD");
 
 
-  const updateTaskState = () => {
+  const updatestate = () => {
     let existingTasks=[...tasks];
     let indexToUpdate = existingTasks.findIndex(c => c.id === id);
     let postponedTask = existingTasks[indexToUpdate].task;
@@ -31,12 +28,16 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
     let nextDayDay = date==undefined? undefined:nextDay.getDate();
     let copytrack=existingTasks[indexToUpdate].track;
     let copyTime=existingTasks[indexToUpdate].time;
-    if (existingTasks[indexToUpdate].taskState==0){
+    let copyCreationdate=existingTasks[indexToUpdate].creationdate;
+    let copyCompletiondate=existingTasks[indexToUpdate].completiondate;
+    let copyPostpone=existingTasks[indexToUpdate].postpone;
+    let copyNotes=existingTasks[indexToUpdate].notes;
+    if (existingTasks[indexToUpdate].state==0){
       db.transaction(tx=> { 
-        tx.executeSql('UPDATE tasks SET taskState = ? WHERE id = ?', [1, id],
+        tx.executeSql('UPDATE tasks SET state = ? WHERE id = ?', [1, id],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-              existingTasks[indexToUpdate].taskState = 1;
+              existingTasks[indexToUpdate].state = 1;
               setTasks(existingTasks);
             }
           },
@@ -44,12 +45,12 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
         );
       });
     }
-    else if(existingTasks[indexToUpdate].taskState==1){
+    else if(existingTasks[indexToUpdate].state==1){
       db.transaction(tx=> {
-        tx.executeSql('UPDATE tasks SET taskState = ? WHERE id = ?', [2, id],
+        tx.executeSql('UPDATE tasks SET state = ? WHERE id = ?', [2, id],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-              existingTasks[indexToUpdate].taskState = 2;
+              existingTasks[indexToUpdate].state = 2;
               setTasks(existingTasks);
             }
           },
@@ -57,13 +58,14 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
         );
       });
     }
-    else if(existingTasks[indexToUpdate].taskState==2){
+    else if(existingTasks[indexToUpdate].state==2){
       if (existingTasks[indexToUpdate].recurring==0 && date!==undefined){
+        let postponeInc = copyPostpone+1;
         db.transaction(tx=> {
-          tx.executeSql('UPDATE tasks SET taskState = ? WHERE id = ?', [3, id],
+          tx.executeSql('UPDATE tasks SET state = ? WHERE id = ?', [3, id],
             (txObj, resultSet) => {
               if (resultSet.rowsAffected > 0) {
-                existingTasks[indexToUpdate].taskState = 3;
+                existingTasks[indexToUpdate].state = 3;
                 setTasks(existingTasks);
               }
             },
@@ -71,20 +73,21 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
           );
         });
         db.transaction(tx => {
-          tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring,monthly,track,time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
-          [ uuid.v4(),postponedTask,nextDayYear,nextDayMonth,nextDayDay,0,0,false,copytrack,copyTime, section],
+          tx.executeSql('INSERT INTO tasks (id,task,year,month,day,state,recurring,monthly,track,time, section, creationdate, completiondate, postpone, notes) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+          [ uuid.v4(),postponedTask,nextDayYear,nextDayMonth,nextDayDay,0,0,false,copytrack,copyTime, section, copyCreationdate, copyCompletiondate, postponeInc, copyNotes],
             (txtObj,resultSet)=> {   
-              existingTasks.push({ id: uuid.v4(), task: postponedTask, year: nextDayYear, month:nextDayMonth, day:nextDayDay, taskState:0, recurring:0, monthly:false, track:copytrack, time:copyTime, section:section});
+              existingTasks.push({ id: uuid.v4(), task: postponedTask, year: nextDayYear, month:nextDayMonth, day:nextDayDay, state:0, recurring:0, 
+                monthly:false, track:copytrack, time:copyTime, section:section, creationdate:copyCreationdate, completiondate:copyCompletiondate, postpone:postponeInc, notes:copyNotes});
             },
           );
         });
       }
       else {
         db.transaction(tx=> {
-          tx.executeSql('UPDATE tasks SET taskState = ? WHERE id = ?', [0, id],
+          tx.executeSql('UPDATE tasks SET state = ? WHERE id = ?', [0, id],
             (txObj, resultSet) => {
               if (resultSet.rowsAffected > 0) {
-                existingTasks[indexToUpdate].taskState = 0;
+                existingTasks[indexToUpdate].state = 0;
                 setTasks(existingTasks);
               }
             },
@@ -95,10 +98,10 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
     }
     else {
       db.transaction(tx=> {
-        tx.executeSql('UPDATE tasks SET taskState = ? WHERE id = ?', [0, id],
+        tx.executeSql('UPDATE tasks SET state = ? WHERE id = ?', [0, id],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-              existingTasks[indexToUpdate].taskState = 0;
+              existingTasks[indexToUpdate].state = 0;
               setTasks(existingTasks);
             }
           },
@@ -196,10 +199,10 @@ function Task({db, tasks, setTasks, date,task, taskState, id , time, section, tr
       <View style={{display:(monthly && day!==null && day!==undefined)?"flex":"none",width:60,height:40,justifyContent:'center', alignContent:'center', alignItems:'flex-end'}}>
           <Text style={{fontSize:10, right:10}}>{moment(new Date(year,month+1,day)).format("MM/DD")}</Text>
       </View>
-      <Pressable onPress={()=> updateTaskState()} style={{display:(editIndex==index && selectedSection==section)?'none':'flex',marginRight:5}}>
-        <MaterialCommunityIcons name={taskState===0 ? 'checkbox-blank-outline' : (
-          taskState===1 ? 'checkbox-intermediate' : (
-          taskState===2 ? 'checkbox-blank' :
+      <Pressable onPress={()=> updatestate()} style={{display:(editIndex==index && selectedSection==section)?'none':'flex',marginRight:5}}>
+        <MaterialCommunityIcons name={state===0 ? 'checkbox-blank-outline' : (
+          state===1 ? 'checkbox-intermediate' : (
+          state===2 ? 'checkbox-blank' :
           'arrow-right-bold-box-outline')
         )} size={30} />
       </Pressable>

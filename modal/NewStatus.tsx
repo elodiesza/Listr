@@ -5,28 +5,23 @@ import { container,colors } from '../styles';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import ColorPicker from '../components/ColorPicker';
 import uuid from 'react-native-uuid';
-import { SelectList } from 'react-native-dropdown-select-list';
 import Modal from 'react-native-modal';
+import {Dropdown} from 'react-native-element-dropdown';
 
 const width = Dimensions.get('window').width;
 
-function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setStatuslist, statusrecords, setStatusrecords, selectedTab, selectedSection}) {
-  var today = new Date();
-  var month = today.getMonth();
-  var year = today.getFullYear();
-  const DaysInMonth = (year, month) => new Date(year, month+1, 0).getDate();
-  
+function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setStatuslist, statusrecords, setStatusrecords, selectedTrack, selectedSection}) {
+
   const { control: control1, handleSubmit: handleSubmit1, reset: reset1 } = useForm();
   const { control: control2, handleSubmit: handleSubmit2, reset: reset2 } = useForm();
 
   const [itemlist, setItemlist] = useState([{ colorPickerVisible: false, picked: '', value: undefined }]);
-  const [selectedStatus, setSelectedStatus] = useState('');
-  
+  const [selectedStatus, setSelectedStatus] = useState('');  
 
   const ListOfStatuses = () => {
     let list = [];
     for (let i = 0; i < [...new Set(statuslist.map(c=>c.name))].length; i++) {
-      list.push([[...new Set(statuslist.map(c=>c.name))][i]," : "+statuslist.filter(c=>c.name==[...new Set(statuslist.map(c=>c.name))][i]).map(c=>" "+c.item)]);
+      list.push({label:[[...new Set(statuslist.map(c=>c.name))][i]," : "+statuslist.filter(c=>c.name==[...new Set(statuslist.map(c=>c.name))][i]).map(c=>" "+c.item)],value:[...new Set(statuslist.map(c=>c.name))][i]});
     }
     return list;
   }
@@ -78,12 +73,12 @@ function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setSt
         db.transaction((tx) => {
             tx.executeSql(
               'INSERT INTO statusrecords (id,name, track, section, list, number,archive) VALUES (?,?,?,?,?,?,?)',
-              [ newID,data.newrecord, selectedTab, selectedSection, selectedList, 0,false],
+              [ newID,data.newrecord, selectedTrack, selectedSection, selectedList, 0,false],
               (txtObj, stateResultSet) => {
                 const newStatus = {
                   id: newID,
                   name: data.newrecord,
-                  track: selectedTab,
+                  track: selectedTrack,
                   section: selectedSection,
                   list: selectedList,
                   number: 0,
@@ -95,7 +90,7 @@ function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setSt
             );
         });
       setNewStatusVisible(false);
-      setSelectedStatus(selectedList)
+      setSelectedStatus('')
       reset2();
   };
 
@@ -175,6 +170,8 @@ function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setSt
     );
   };
 
+    const [isFocus, setIsFocus] = useState(false);
+
 
   return (
     <Modal
@@ -182,26 +179,35 @@ function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setSt
       onBackdropPress={() => {
         setNewStatusVisible(!newStatusVisible);
         setItemlist([{ colorPickerVisible: false, picked: '', value: undefined }]);
+        setSelectedStatus('');
       }}
       backdropColor='white'
       avoidKeyboard={true}
       style={{margin: 0,justifyContent:'flex-end',alignItems:'center', width:width}}
     > 
-      <TouchableOpacity onPressOut={() => {setNewStatusVisible(!newStatusVisible);setItemlist([{ colorPickerVisible: false, picked: '', value: undefined }]);}} activeOpacity={1}>
+      <TouchableOpacity onPressOut={() => {setNewStatusVisible(!newStatusVisible);setItemlist([{ colorPickerVisible: false, picked: '', value: undefined }]);setSelectedStatus('')}} activeOpacity={1}>
         <TouchableWithoutFeedback>
           <View style={[container.newModal,{height:undefined, paddingBottom:40}]}>
                 <View style={{width:width,height:40, zIndex:2}}>
                   <View style={{position:'absolute'}}>
-                    <SelectList 
-                    setSelected={(val) => setSelectedStatus(val=="CREATE A NEW STATUS"?val:val[0])} 
-                    data={[...ListOfStatuses(),{value:"CREATE A NEW STATUS"}]} 
-                    save="value"
-                    placeholder='select a status list'
-                    boxStyles={{backgroundColor:colors.primary.white, width:width, height:40}}
-                    dropdownStyles={{backgroundColor:colors.primary.white,borderRadius:5}}
-                    dropdownTextStyles={{fontSize:10}}
-                    maxHeight={200}
-                    />  
+                    <Dropdown
+                      data={[...ListOfStatuses(),{label:"CREATE A NEW STATUS", value: "CREATE A NEW STATUS"}].reverse()} 
+                      labelField='label'
+                      valueField='value'
+                      value={selectedStatus}
+                      onChange={(item) => setSelectedStatus(item.value)}
+                      onFocus={() => setIsFocus(true)}
+                      onBlur={() => setIsFocus(false)}
+                      search={false}
+                      placeholder={!isFocus ? 'Select item' : '...'}
+                      style={[isFocus && { borderColor: 'blue' },{backgroundColor:colors.primary.white, width:width, height:40}]}
+                      placeholderStyle={{color:colors.primary.black}}
+                      maxHeight={200}
+                      dropdownPosition='top'
+                      
+                      itemContainerStyle={{backgroundColor:colors.primary.white, height:50}}
+                      itemTextStyle={{fontSize:14}}
+                    />
                   </View>
                 </View>
                 <View style={{display: selectedStatus!=="CREATE A NEW STATUS"? "none":"flex", width:'100%', justifyContent:'center', alignItems:'flex-start'}}>

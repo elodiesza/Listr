@@ -9,7 +9,7 @@ import background from '../assets/images/design/background.jpg';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
+const Today = ({db, tasks, setTasks, tracks, setTracks, selectedTrack, setSelectedTrack,
   sections, settings, logs, setLogs, date, setDate}) => {
 
   var today = new Date();
@@ -62,9 +62,9 @@ const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
           </View>
           <TodayTasks db={db} 
             tasks={tasks} setTasks={setTasks} 
-            tracks={tracks} setTracks={setTracks} load={load} 
-            loadx={loadx} date={date}
-            sections={sections}
+            tracks={tracks} 
+            selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack}
+            date={date}
             logs={logs} setLogs={setLogs}
           />
         </SafeAreaView>
@@ -73,5 +73,5 @@ const TodayTab = ({db, tasks, setTasks, tracks, setTracks, load, loadx,
   );
 }
 
-export default TodayTab;
+export default Today;
 

@@ -12,7 +12,7 @@ import CalendarPicker from 'react-native-calendar-picker';
 
 const width = Dimensions.get('window').width;
 
-function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, tracks, track, section, pageDate, tracksScreen, monthly, selectedTab}) {
+function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, tracks, track, selectedTrack, setSelectedTrack, section, pageDate, tracksScreen, monthly}) {
 
   const {control, handleSubmit, reset} = useForm();
   const [date, setDate] = useState(pageDate)
@@ -23,11 +23,7 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
   const [addDeadline, setAddDeadline] = useState('Add Deadline');
   const [timeDisplay, setTimeDisplay] = useState<"none" | "flex" | undefined>('none');
   const [addTime, setAddTime] = useState('Add Time');
-  const [load, loadx] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState(track);
-
   const [recurring, setRecurring] = useState(0);
-
 
   function CheckColor(color) {
     var c = color.substring(1);      // strip #
@@ -68,18 +64,32 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
   const addTask = async (data) => {
     let existingTasks = [...tasks]; 
     db.transaction((tx) => {
-      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,taskState,recurring, monthly, track, time, section) values (?,?,?,?,?,?,?,?,?,?,?)',
+      tx.executeSql('INSERT INTO tasks (id,task,year,month,day,state,recurring, monthly, track, time, section, creationdate, completiondate, postpone, notes) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
       [uuid.v4(),data.task,
         tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'),
         tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1,
         (tracksScreen||monthly==true)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'),
-        0,recurring==1?1:0,monthly?true:false,selectedTrack=='all'?'DAILY':selectedTrack,addTime=='Add Time'?null:time.toString(),section==undefined?undefined:section],
+        0,
+        recurring==1?1:0,monthly?true:false,
+        selectedTrack=='all'?'DAILY':selectedTrack,addTime=='Add Time'?null:time.toString(),
+        section==undefined?undefined:section, 
+        moment(new Date()).format('YYYY-MM-DD'), 
+        undefined, 
+        0, 
+        undefined],
       (txtObj,resultSet)=> {    
         existingTasks.push({ id: uuid.v4(), task: data.task, 
           year:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getFullYear():moment(date).format('YYYY'), 
           month:tracksScreen?undefined:addDeadline=='Add deadline'?pageDate.getMonth():parseInt(moment(date).format('MM'))-1, 
           day:(tracksScreen||monthly==true)?undefined:addDeadline=='Add deadline'?pageDate.getDate():moment(date).format('DD'), 
-          taskState:0, recurring:recurring==1?1:0, monthly:monthly?true:false, track:selectedTrack=='all'?'DAILY':selectedTrack, time:addTime=='Add Time'?null:time.toString(), section});
+          state:0, recurring:recurring==1?1:0, monthly:monthly?true:false, 
+          track:selectedTrack=='all'?'DAILY':selectedTrack, 
+          time:addTime=='Add Time'?null:time.toString(), 
+          section:section==undefined?undefined:section,
+          creationdate:moment(new Date()).format('YYYY-MM-DD'), 
+          completiondate:undefined, 
+          postpone:0, 
+          notes:undefined});
         setTasks(existingTasks);
       },
       (txtObj, error) => console.log('Error inserting data:', error)
@@ -93,7 +103,6 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
     setDateDisplay('none');
     setTimeDisplay('none');
     setAddModalVisible(false);
-    loadx(!load);
     setSelectedTrack(track);
     reset();
   };
@@ -200,10 +209,10 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
             </View> 
             <View style={{flex:1,display:(monthly||tracksScreen)?'none':'flex'}}>
               <FlatList
-                data={[{'track':'DAILY','color':'#D3DDDF'},...new Set(tracks)]}
+                data={[{'name':'DAILY','color':'#D3DDDF'},...new Set(tracks)]}
                 renderItem={({item}) => (
-                  <Pressable onPress={()=>setSelectedTrack(item.track)} style={[container.color, {backgroundColor: item.color==''?colors.primary.default:item.color, width:25,height:25,borderColor:item.track==selectedTrack?colors.primary.purple:colors.primary.gray,opacity:item.track==selectedTrack?1:0.5}]}>
-                    <Text style={{color:item.color==''?colors.primary.black:CheckColor(item.color),fontWeight:'bold'}}>{item.track[0]}</Text>
+                  <Pressable onPress={()=>setSelectedTrack(item.name)} style={[container.color, {backgroundColor: item.color==''?colors.primary.default:item.color, width:25,height:25,borderColor:item.name==selectedTrack?colors.primary.purple:colors.primary.gray,opacity:((selectedTrack=='all' || selectedTrack=='tocomplete') && item.name=='DAILY')? 1: item.name==selectedTrack?1:0.5}]}>
+                    <Text style={{color:item.color==''?colors.primary.black:CheckColor(item.color),fontWeight:'bold'}}>{item.name[0]}</Text>
                   </Pressable>
                 )}
                 horizontal={true}

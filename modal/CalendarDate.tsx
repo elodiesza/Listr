@@ -11,8 +11,8 @@ export default function CalendarDate({db, modalVisible, setModalVisible, tasks, 
   const thisDayTasks = tasks.filter(c=>(c.year==year && c.month==month && c.day==day));
   const date = new Date(year,month,day);
   const numbertasks = thisDayTasks.length;
-  const completionrate = numbertasks==0?0:parseInt((100*(thisDayTasks.filter(c=>c.taskState==2).length*2+thisDayTasks.filter(c=>c.taskState==1).length)/(thisDayTasks.length*2)).toFixed(0));
-  const score = (numbertasks==0||completionrate==0)?0:(100*Math.log(thisDayTasks.filter(c=>c.taskState==2).length*2+thisDayTasks.filter(c=>c.taskState==1).length)/Math.log(thisDayTasks.length*2)).toFixed(0);
+  const completionrate = numbertasks==0?0:parseInt((100*(thisDayTasks.filter(c=>c.state==2).length*2+thisDayTasks.filter(c=>c.state==1).length)/(thisDayTasks.length*2)).toFixed(0));
+  const score = (numbertasks==0||completionrate==0)?0:(100*Math.log(thisDayTasks.filter(c=>c.state==2).length*2+thisDayTasks.filter(c=>c.state==1).length)/Math.log(thisDayTasks.length*2)).toFixed(0);
 
   const busyscore = () => {
     let days=[... new Set(tasks.map(c=>c.day))].length;
@@ -28,9 +28,9 @@ export default function CalendarDate({db, modalVisible, setModalVisible, tasks, 
   const RenderTaskItem = (item) => {
     const taskColor = tracks.filter(c=>c.track==item.track).map(c=>c.color)[0];
     return (
-      <View style={{width:0.8*width-50,height:20, backgroundColor:item.taskState==0?colors.pale.default:paleColor(taskColor), borderRadius : 5, borderWidth:1, borderColor:item.taskState==0?colors.primary.defaultdark:taskColor, flexDirection:'row' }}>
-        <Text style={{display:item.section==undefined?'none':'flex',color:item.taskState==0?colors.primary.defaultdark:taskColor, fontWeight:'bold', marginHorizontal:5}}>{item.section} > </Text>
-        <Text style={{color:item.taskState==0?colors.primary.defaultdark:taskColor, marginHorizontal:5}}>{item.task}</Text>
+      <View style={{width:0.8*width-50,height:20, backgroundColor:item.state==0?colors.pale.default:paleColor(taskColor), borderRadius : 5, borderWidth:1, borderColor:item.state==0?colors.primary.defaultdark:taskColor, flexDirection:'row' }}>
+        <Text style={{display:item.section==undefined?'none':'flex',color:item.state==0?colors.primary.defaultdark:taskColor, fontWeight:'bold', marginHorizontal:5}}>{item.section} > </Text>
+        <Text style={{color:item.state==0?colors.primary.defaultdark:taskColor, marginHorizontal:5}}>{item.task}</Text>
       </View>
     );
   };
@@ -66,7 +66,7 @@ export default function CalendarDate({db, modalVisible, setModalVisible, tasks, 
                   <View style={{position:'absolute'}}>
                     <PieChartView series={[numbertasks==0?1:(1-completionrate/100)*numbertasks,completionrate*numbertasks/100]} color={completioncolor} pieWidth={70}/>
                   </View>
-                  <Text style={{fontSize:20, color:colors.primary.black, fontWeight:'bold'}}>{completionrate}%</Text>
+                  <Text style={{fontSize:16, color:colors.primary.black, fontWeight:'bold'}}>{completionrate}%</Text>
                 </View>
               </View>
               <View style={{justifyContent:'center',alignItems:'center',flex:1}}>

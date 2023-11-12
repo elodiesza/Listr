@@ -5,7 +5,7 @@ import Modal from 'react-native-modal';
 
 const width = Dimensions.get('window').width;
 
-function DeleteSection({deleteSectionVisible, setDeleteSectionVisible, db, selectedTab, setSelectedTab, sections, setSections, tasks, setTasks, selectedSection, setSelectedSection, progress, setProgress, statusrecords, setStatusrecords}) {
+function DeleteSection({deleteSectionVisible, setDeleteSectionVisible, db, selectedTrack, sections, setSections, tasks, setTasks, selectedSection, setSelectedSection, sliders, setSliders, statusrecords, setStatusrecords}) {
 
 
   function DeleteSectionDB() {
@@ -22,10 +22,10 @@ function DeleteSection({deleteSectionVisible, setDeleteSectionVisible, db, selec
         );       
     })  
     db.transaction(tx=> {
-        tx.executeSql('DELETE FROM tasks WHERE track = ? AND section = ?', [selectedTab, selectedSection],
+        tx.executeSql('DELETE FROM tasks WHERE track = ? AND section = ?', [selectedTrack, selectedSection],
         (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-                let existingTasks = [...tasks].filter(c=>(c.section!==selectedSection || c.track!==selectedTab));
+                let existingTasks = [...tasks].filter(c=>(c.section!==selectedSection || c.track!==selectedTrack));
                 setTasks(existingTasks);
               }
         },
@@ -33,21 +33,21 @@ function DeleteSection({deleteSectionVisible, setDeleteSectionVisible, db, selec
         );       
     })   
     db.transaction(tx=> {
-        tx.executeSql('DELETE FROM progress WHERE track = ? AND list = ?', [selectedTab, selectedSection],
+        tx.executeSql('DELETE FROM sliders WHERE track = ? AND section = ?', [selectedTrack, selectedSection],
         (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
-                let existingProgress = [...progress].filter(c=>(c.list!==selectedSection || c.track!==selectedTab));
-                setProgress(existingProgress);
+                let existingsliders = [...sliders].filter(c=>(c.list!==selectedSection || c.track!==selectedTrack));
+                setSliders(existingsliders);
               }
         },
         (txObj, error) => console.log(error)
         );       
     })
     db.transaction(tx=> {
-      tx.executeSql('DELETE FROM statusrecords WHERE track = ? AND section = ?', [selectedTab, selectedSection],
+      tx.executeSql('DELETE FROM statusrecords WHERE track = ? AND section = ?', [selectedTrack, selectedSection],
       (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
-              let existingStatusrecords = [...statusrecords].filter(c=>(c.section!==selectedSection || c.track!==selectedTab));
+              let existingStatusrecords = [...statusrecords].filter(c=>(c.section!==selectedSection || c.track!==selectedTrack));
               setStatusrecords(existingStatusrecords);
             }
       },

@@ -157,7 +157,6 @@ export const container = StyleSheet.create({
     },
     tasktext: {
         textAlign:'left',
-        marginLeft: 5,
         textAlignVertical: 'center',
     },
     taskcontainer: {
@@ -274,6 +273,7 @@ export const container = StyleSheet.create({
         alignContent:'space-between',
         padding:10,
         margin:5,
+        width:'100%',
     },
     keyNumber:{
         fontSize: 30,

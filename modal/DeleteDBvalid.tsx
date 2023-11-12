@@ -5,7 +5,7 @@ import Modal from 'react-native-modal';
 
 const width = Dimensions.get('window').width;
 
-function DeleteDBvalid({deleteVisible, setDeleteVisible, db, setSections, setTasks, setTracks, setProgress, setStatusrecords, setStatuslist, setLogs, setmLogs, selectedData}) {
+function DeleteDBvalid({deleteVisible, setDeleteVisible, db, setSections, setTasks, setTracks, setSliders, setStatusrecords, setStatuslist, setLogs, setmLogs, selectedData}) {
 
 
   function Delete() {
@@ -24,9 +24,9 @@ function DeleteDBvalid({deleteVisible, setDeleteVisible, db, setSections, setTas
       (txObj, resultSet) => setStatusrecords([]),
       (txObj, error) => console.log('error selecting status records')
       )})
-      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS progress', null,
-      (txObj, resultSet) => setProgress([]),
-      (txObj, error) => console.log('error selecting progress')
+      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS sliders', null,
+      (txObj, resultSet) => setSliders([]),
+      (txObj, error) => console.log('error selecting sliders')
       )})
     } 
     else if (selectedData=='tracks') {
@@ -42,9 +42,9 @@ function DeleteDBvalid({deleteVisible, setDeleteVisible, db, setSections, setTas
       (txObj, resultSet) => setStatusrecords([]),
       (txObj, error) => console.log('error selecting status records')
       )})
-      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS progress', null,
-      (txObj, resultSet) => setProgress([]),
-      (txObj, error) => console.log('error selecting progress')
+      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS sliders', null,
+      (txObj, resultSet) => setSliders([]),
+      (txObj, error) => console.log('error selecting sliders')
       )})
     }
     else if (selectedData=='statusrecords') {
@@ -59,10 +59,10 @@ function DeleteDBvalid({deleteVisible, setDeleteVisible, db, setSections, setTas
       (txObj, error) => console.log('error selecting status list')
       )})
     }
-    else if (selectedData=='progress') {
-      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS progress', null,
-      (txObj, resultSet) => setProgress([]),
-      (txObj, error) => console.log('error selecting progress')
+    else if (selectedData=='sliders') {
+      db.transaction(tx=>{tx.executeSql('DROP TABLE IF EXISTS sliders', null,
+      (txObj, resultSet) => setSliders([]),
+      (txObj, error) => console.log('error selecting sliders')
       )})
     }
     else if (selectedData=='logs') {
