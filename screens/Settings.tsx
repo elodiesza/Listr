@@ -14,7 +14,7 @@ import background from '../assets/images/design/background.jpg';
 const Stack = createNativeStackNavigator();
 
 const SettingsNavigator =({db, tasks, setTasks, tracks, setTracks, sections, setSections,
-  statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs,  setmLogs, progress, setProgress})=> {
+  statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs,  setmLogs, settings, setSettings, sliders, setSliders})=> {
 
 
     return (
@@ -28,7 +28,7 @@ const SettingsNavigator =({db, tasks, setTasks, tracks, setTracks, sections, set
       <Stack.Screen
         name="DeleteDB"
         component={()=>DeleteDB({db, tasks, setTasks, tracks, setTracks, sections, setSections,
-          statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs, setmLogs, progress, setProgress})} />
+          statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs, setmLogs, sliders, setSliders})} />
       <Stack.Screen
         name="Linkdata"
         component={()=>Linkdata({})} />
@@ -38,7 +38,7 @@ const SettingsNavigator =({db, tasks, setTasks, tracks, setTracks, sections, set
 }
 
 function Settings({db, tasks, setTasks, tracks, setTracks, sections, setSections,
-  statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs, setmLogs, progress, setProgress}) {
+  statuslist, setStatuslist, statusrecords, setStatusrecords, logs, setLogs, setmLogs, settings, setSettings, sliders, setSliders}) {
 
 
   return (
@@ -51,7 +51,7 @@ function Settings({db, tasks, setTasks, tracks, setTracks, sections, setSections
           tracks={tracks} setTracks={setTracks} sections={sections} setSections={setSections}
           statusrecords={statusrecords} setStatusrecords={setStatusrecords}
           statuslist={statuslist} setStatuslist={setStatuslist} logs={logs} setLogs={setLogs}
-          setmLogs={setmLogs} progress={progress} setProgress={setProgress}
+          setmLogs={setmLogs} sliders={sliders} setSliders={setSliders}
           />
       </SafeAreaView>
     </ImageBackground>

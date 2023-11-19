@@ -67,14 +67,14 @@ function NewSection({db, sections, setSections, track, newSectionVisible, setNew
                   </View>
                 )}
                 rules={{
-                    required: 'Input a section name',
+                    required: 'Input a Section name',
                     minLength: {
                     value: 3,
-                    message: 'Task should be at least 3 characters long',
+                    message: 'Name should be at least 3 characters long',
                     },
                     maxLength: {
                     value: 32,
-                    message: 'Task should be max 32 characters long',
+                    message: 'Name should be max 32 characters long',
                     },
                     validate: (name) => {
                     if (name.includes('  ')) {

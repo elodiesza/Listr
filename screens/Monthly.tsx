@@ -12,7 +12,7 @@ import Tab from '../components/Tab';
 const width = Dimensions.get('window').width;
 
 
-const Monthly = ({db, tracks, setTracks, tasks, setTasks, sections, settings, mlogs, setmLogs, date, setDate}) => {
+const Monthly = ({db, tracks, setTracks, tasks, setTasks, settings, mlogs, setmLogs, date, setDate}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   var thisMonth = date.getMonth();
@@ -20,7 +20,6 @@ const Monthly = ({db, tracks, setTracks, tasks, setTasks, sections, settings, ml
   var thisDay = date.getDate();
   const [month,setMonth] = useState(thisMonth);
   const [year,setYear] = useState(thisYear);
-  const [day, setDay] = useState(thisDay);
   const [firstMonth, setFirstMonth] = useState(false);
   const [lastMonth, setLastMonth] = useState(false);
   const [displayMonth, setDisplayMonth] = useState(true);

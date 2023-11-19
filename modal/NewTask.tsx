@@ -179,8 +179,9 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
                     <CalendarPicker
                       startFromMonday={true}
                       allowRangeSelection={false}
-                      minDate={date==undefined?pageDate:date}
+                      minDate={new Date()}
                       todayBackgroundColor={colors.pale.purple}
+                      todayTextStyle={{color:colors.primary.purple}}
                       selectedDayColor={colors.primary.purple}
                       selectedDayTextColor={colors.primary.white}
                       onDateChange={onChange}
@@ -199,7 +200,7 @@ function NewTask({addModalVisible, setAddModalVisible, db, tasks, setTasks, trac
                     )}
                   </View>
                 </View>
-                <Pressable style={{marginRight:5, display: (track=="DAILY"||track=='all')? "flex" : "none"}} onPress={() => setRecurring(recurring==1?0:1)}>
+                <Pressable style={{marginRight:5, display: (track=="DAILY"||track=='all')? "flex" : "none"}} onPress={() => {setRecurring(recurring==1?0:1);setDate(pageDate);}}>
                   <Entypo name='cycle' size={20} color={recurring==1? colors.primary.purple : colors.primary.black}/>
                 </Pressable>
                 <Pressable onPress={handleSubmit(addTask)} style={{justifyContent:'center', alignItems:'center',height:40, width: 30,padding:5,backgroundColor:colors.primary.purple}}>

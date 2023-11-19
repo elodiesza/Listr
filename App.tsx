@@ -60,6 +60,7 @@ function App() {
     setSelectedTrack(selectedTab=='Tracks'?'UNLISTED':'all');
   }, [selectedTab])
 
+
   return (
     <View style={{backgroundColor:'transparent', flex:1}}>
     <NavigationContainer>
@@ -105,7 +106,6 @@ function App() {
         tasks={tasks} setTasks={setTasks} 
         tracks={tracks} setTracks={setTracks} 
         selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack}
-        sections={sections}
         settings={settings}
         logs={logs} setLogs={setLogs}
         date={date} setDate={setDate}
@@ -126,6 +126,7 @@ function App() {
         statuslist={statuslist} setStatuslist={setStatuslist}
         logs={logs} setLogs={setLogs}
         settings={settings} setSettings={setSettings}
+        sliders={sliders} setSliders={setSliders}
         />} 
           options={{ headerShown: false, tabBarShowLabel: false,
             tabBarIcon: ({focused}) => (

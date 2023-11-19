@@ -107,6 +107,15 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
         }
     },[sliders]);
 
+    useEffect(() => {
+        setEditIndex(-1);
+        setEditIndex2(-1);
+        setEditIndex3(-1);
+        setEditIndex4(-1);
+        setEditIndex5(-1);
+        setEditIndex6(-1);
+    },[selectedTrack]);
+
 
     useEffect(() => {
         if (sections.filter(c=>c.track==selectedTrack).length>arrow.length){
@@ -146,6 +155,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
     }, [selectedTrack,tracks,sections]);
 
     const TransferDaily = (id) => {
+        closeOpenRow();
         let existingTasks = [...tasks];
         const toTransfer = existingTasks.map(c=>c.id).findIndex(c=>c==id);
         db.transaction(tx=> {
@@ -161,7 +171,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
               (txObj, error) => console.log('Error updating data', error)
             );
         });
-        closeOpenRow();
+        
     }
 
     const TransferTomorrow = (id) => {
@@ -349,7 +359,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                             bounces={false}  
                                             rightOpenValue={-150}
                                             disableRightSwipe={true}
-                                            closeOnRowBeginSwipe={true}
+                                            closeOnRowBeginSwipe={false}
                                             onRowDidOpen={onRowDidOpen}
                                             keyExtractor= {(item,index) => index.toString()}
                                         />
@@ -519,7 +529,7 @@ function Tracks({tracks, setTracks, db, sections, setSections, tasks, setTasks,
                                                 <Feather name='plus-circle' size={30} color={colors.primary.purple}  />
                                             </TouchableOpacity>
                                         </View>
-                                        <DeleteTrack deleteTrackVisible={deleteTrackVisible} setDeleteTrackVisible={setDeleteTrackVisible} tracks={tracks} setTracks={setTracks} db={db} setSelectedTrack={setSelectedTrack} selectedTrack={selectedTrack} sections={sections} setSections={setSections} tasks={tasks} setTasks={setTasks}/>
+                                        <DeleteTrack deleteTrackVisible={deleteTrackVisible} setDeleteTrackVisible={setDeleteTrackVisible} tracks={tracks} setTracks={setTracks} db={db} setSelectedTrack={setSelectedTrack} selectedTrack={selectedTrack} sections={sections} setSections={setSections} tasks={tasks} setTasks={setTasks} sliders={sliders} setSliders={setSliders} statusrecords={statusrecords} setStatusrecords={setStatusrecords}/>
                                         <DeleteSection deleteSectionVisible={deleteSectionVisible} setDeleteSectionVisible={setDeleteSectionVisible} db={db} selectedTrack={selectedTrack} sections={sections} setSections={setSections} tasks={tasks} setTasks={setTasks} selectedSection={selectedSection} setSelectedSection={setSelectedSection} sliders={sliders} setSliders={setSliders} statusrecords={statusrecords} setStatusrecords={setStatusrecords}/>
                                     </View>
                                 </View>

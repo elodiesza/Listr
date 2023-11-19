@@ -104,7 +104,7 @@ const useDatabase = () => {
       );
     });
   
-  },[]);
+  },[,tasks.length, sliders.length, statuslist.length, statusrecords.length, sections.length, tracks.length, logs.length, mlogs.length]);
 
   return {
     tasks,

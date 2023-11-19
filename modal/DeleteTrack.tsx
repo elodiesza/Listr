@@ -5,7 +5,7 @@ import Modal from 'react-native-modal';
 
 const width = Dimensions.get('window').width;
 
-function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, setTracks, selectedTrack, setSelectedTrack, sections, setSections, tasks, setTasks}) {
+function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, setTracks, selectedTrack, setSelectedTrack, sections, setSections, tasks, setTasks, sliders, setSliders, statusrecords, setStatusrecords}) {
 
 
   const DeleteTrackDB = () => {
@@ -41,6 +41,36 @@ function DeleteTrack({deleteTrackVisible, setDeleteTrackVisible, db, tracks, set
         );
         }
     );
+    db.transaction(
+      (tx) => {
+      tx.executeSql(
+          'DELETE FROM sliders WHERE track = ?',
+          [id],
+          (txObj, resultSet) => {
+          if (resultSet.rowsAffected > 0) {
+              let existingSliders = [...sliders].filter((c) => c.track !== selectedTrack);
+              setSliders(existingSliders);
+          }
+          },
+          (txObj, error) => console.log(error)
+      );
+      }
+  );    
+  db.transaction(
+    (tx) => {
+    tx.executeSql(
+        'DELETE FROM statusrecords WHERE track = ?',
+        [id],
+        (txObj, resultSet) => {
+        if (resultSet.rowsAffected > 0) {
+            let existingStatusrecords = [...statusrecords].filter((c) => c.track !== selectedTrack);
+            setStatusrecords(existingStatusrecords);
+        }
+        },
+        (txObj, error) => console.log(error)
+    );
+    }
+);
 
     db.transaction(
         (tx) => {

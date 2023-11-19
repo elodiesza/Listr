@@ -10,7 +10,7 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 const Today = ({db, tasks, setTasks, tracks, setTracks, selectedTrack, setSelectedTrack,
-  sections, settings, logs, setLogs, date, setDate}) => {
+  settings, logs, setLogs, date, setDate}) => {
 
   var today = new Date();
 

@@ -66,14 +66,14 @@ function NewSlider({addModalVisible, setAddModalVisible, db, sliders, setSliders
                   </View>
                 )}
                 rules={{
-                  required: 'Input a name for your sliders bar',
+                  required: 'Input a name for your slider',
                   minLength: {
                     value: 3,
-                    message: 'Task should be at least 3 characters long',
+                    message: 'Name should be at least 3 characters long',
                   },
                   maxLength: {
-                    value: 36,
-                    message: 'Task should be max 70 characters long',
+                    value: 50,
+                    message: 'Name should be max 50 characters long',
                   },
                 }}
               />

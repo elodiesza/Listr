@@ -15,6 +15,7 @@ const width = Dimensions.get('window').width;
 function TodayTasks({db, tasks, setTasks, tracks, date, logs, setLogs, selectedTrack, setSelectedTrack}) {
   const [isLoading, setIsLoading] = useState(true);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(true);
+  const [selectedSection, setSelectedSection] = useState(undefined);
   const openKeyboardAnimationValue = new Animated.Value(0);
   const closeKeyboardAnimationValue = new Animated.Value(1);
   const [editIndex, setEditIndex] = useState(-1);
@@ -80,6 +81,7 @@ function TodayTasks({db, tasks, setTasks, tracks, date, logs, setLogs, selectedT
   useEffect (()=>{
     setLogsLoading(false)
   },[logs])
+
 
   const openRowRef = useRef(null);
   const onRowDidOpen = (rowKey,rowMap) => {  
@@ -293,7 +295,7 @@ function TodayTasks({db, tasks, setTasks, tracks, date, logs, setLogs, selectedT
                     year={item.year} month={item.month} day={item.day}
                     tabcolor={item.track==undefined? colors.primary.defaultdark:tracks.filter(c=>c.track==item.name).map(c=>c.color)[0]}
                     editIndex={editIndex} setEditIndex={setEditIndex} index={index}
-                    selectedSection={undefined} setSelectedSection={undefined}/>} 
+                    selectedSection={item.section} setSelectedSection={setSelectedSection}/>} 
                     renderHiddenItem={({ item }) => <TaskSwipeItem id={item.id} 
                   />
                 } 
@@ -325,7 +327,7 @@ function TodayTasks({db, tasks, setTasks, tracks, date, logs, setLogs, selectedT
                   </View>
                 )}
                 rules={{
-                  required: 'Input a Habit',
+                  required: 'Input a Task',
                   minLength: {
                     value: 3,
                     message: 'Task should be at least 3 characters long',

@@ -280,14 +280,14 @@ function NewStatus({newStatusVisible, setNewStatusVisible, db, statuslist, setSt
                     </>
                     )}
                     rules={{
-                      required: 'Input a satus',
+                      required: 'Input a name for your Status',
                       minLength: {
                         value: 3,
-                        message: 'Task should be at least 3 characters long',
+                        message: 'Name should be at least 3 characters long',
                       },
                       maxLength: {
                         value: 14,
-                        message: 'Task should be max 14 characters long',
+                        message: 'Name should be max 14 characters long',
                       },
                       validate: (name) => {
                         if (name.includes('  ')) {

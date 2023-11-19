@@ -17,7 +17,6 @@ const DeleteDB = ({db, tasks, setTasks, tracks, setTracks, sections, setSections
       const [selectedData, setSelectedData] = useState('');
       const [deleteVisible, setDeleteVisible] = useState(false);
 
-
     return (
 
         <SafeAreaView style={container.container}>

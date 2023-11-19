@@ -27,13 +27,13 @@ function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, s
     let existingtracks = [...tracks]; 
         db.transaction((tx) => {
             tx.executeSql(
-              'INSERT INTO tracks (id,name, color) VALUES (?,?, ?)',
+              'INSERT INTO tracks (id,name,color) VALUES (?,?,?)',
               [ uuid.v4(),data.name, picked],
               (txtObj, trackResultSet) => {
                 const newTrack = {
                   id: uuid.v4(),
                   name: data.name,
-                  color: picked==undefined? colors.primary.default : picked,
+                  color: picked==undefined? colors.primary.default : picked
                 };
                 existingtracks.push(newTrack);
                 setTracks(existingtracks); 
@@ -88,14 +88,14 @@ function NewTrack({newTrackVisible, setNewTrackVisible, db, tracks, setTracks, s
                       </View>
                     )}
                   rules={{
-                    required: 'Input a Habit',
+                    required: 'Input a Track name',
                     minLength: {
                       value: 3,
-                      message: 'Task should be at least 3 characters long',
+                      message: 'Name should be at least 3 characters long',
                     },
                     maxLength: {
                       value: 12,
-                      message: 'Task should be max 12 characters long',
+                      message: 'Name should be max 12 characters long',
                     },
                     validate: (name) => {
                       if (name.includes('  ')) {
