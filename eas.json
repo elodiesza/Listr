@@ -1,0 +1,27 @@
+{
+  "cli": {
+    "version": ">= 3.13.2"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production":{}
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "elodie.sza@gmail.com",
+        "ascAppId": "6469999798",
+        "appleTeamId": "C89W77XBU7"
+      }
+    }
+  }
+}
